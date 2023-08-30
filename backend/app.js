@@ -25,7 +25,7 @@ app.use(express.static(path.join(__dirname, '../frontend')));
 
 const io = require("socket.io")(httpServer, {
   cors: {
-    origin: "http://localhost:1337",
+    origin: "http://localhost:9000",
     methods: ["GET", "POST"]
   }
 });
