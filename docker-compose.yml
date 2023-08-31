@@ -1,0 +1,28 @@
+version: '3'
+
+networks:
+  jsRamverkTrain:
+
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "9000:9000"
+    container_name: "frontendTrain"
+    env_file:
+      - "./.env"
+    depends_on:
+      - server
+    networks:
+      - jsRamverkTrain
+
+  server:
+    build: ./backend
+    ports:
+      - "1337:1337"
+    container_name: "backendTrain"
+    env_file:
+      - "./.env"
+    restart: "always"
+    networks:
+      - jsRamverkTrain

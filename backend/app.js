@@ -1,5 +1,6 @@
 require('dotenv').config()
 
+const path = require('path');
 const express = require('express')
 const cors = require('cors')
 const morgan = require('morgan')
@@ -20,6 +21,7 @@ app.disable('x-powered-by');
 
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+app.use(express.static(path.join(__dirname, '../frontend')));
 
 const io = require("socket.io")(httpServer, {
   cors: {
