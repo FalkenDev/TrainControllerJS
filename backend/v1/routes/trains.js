@@ -1,29 +1,43 @@
 const express = require("express");
 const router = express.Router();
-const traindModel = require("../models/trains.js");
+const trainController = require("../controllers/trains");
 
-router.get("/all", (req, res) => traindModel.getAllTrainPositions(res));
+router.get("/all", (req, res) => trainController.getAllTrainPositions(res));
 
 router.get("/delayed", (req, res) =>
-  traindModel.getAllDelayedTrains(res, req.body)
+  trainController.getAllDelayedTrains(res, req.body, req.path)
 );
 
-router.get("/codes", (req, res) => traindModel.getAllCodes(res, req.body));
+router.get("/codes", (req, res) => trainController.getAllCodes(res, req.body));
 
 router.get("/tickets", (req, res) =>
-  traindModel.getAllTrainTickets(res, req.body)
+  trainController.getAllTrainTickets(res, req.body, req.path)
 );
 
-router.get("/tickets/:trainId", (req, res) =>
-  traindModel.getSpecificTrainTickets(res, req.body)
+router.get("/tickets/:trainNr", (req, res) =>
+  trainController.getSpecificTrainTickets(res, req.params.trainNr, req.path)
 );
 
-router.put("/tickets/:trainId/:trainTicket", (req, res) =>
-  traindModel.EditSpecificTrainTickets(res, req.body)
+router.post("/tickets/:trainNr", (req, res) =>
+  trainController.addSpecificTrainTicket(
+    res,
+    req.params.trainNr,
+    req.body,
+    req.path
+  )
 );
 
-router.delete("/tickets/:trainId/:trainTicket", (req, res) =>
-  traindModel.deleteSpecificTrainTicket(res, req.body)
+router.put("/tickets/:ticketId", (req, res) =>
+  trainController.editSpecificTrainTickets(
+    res,
+    req.params.ticketId,
+    req.body,
+    req.path
+  )
+);
+
+router.delete("/tickets/:ticketId", (req, res) =>
+  trainController.deleteSpecificTrainTicket(res, req.params.ticketId, req.path)
 );
 
 module.exports = router;
