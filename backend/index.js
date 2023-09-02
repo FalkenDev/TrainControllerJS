@@ -11,7 +11,7 @@ const database = require("./db/database");
 const v1 = require("./v1/index.js");
 
 const RateLimit = require("express-rate-limit");
-const trains = require("./v1/models/trains");
+const trains = require("./v1/controllers/trains");
 const apiLimiter = RateLimit({
   windowMs: 1 * 60 * 1000,
   max: 10000,
