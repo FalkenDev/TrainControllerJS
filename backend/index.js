@@ -23,7 +23,6 @@ const app = express();
 app.use(apiLimiter);
 app.disable("x-powered-by");
 app.set("view engine", "ejs");
-app.use(cors({ origin: [""], credentials: true }));
 app.options("*", cors());
 app.use(cookieParser(process.env.COOKIE_KEY));
 app.use(require("morgan")("combined"));
@@ -36,10 +35,12 @@ database.run;
 
 const httpServer = require("http").createServer(app);
 
+const allowedOrigins = process.env.ALLOWED_ORIGINS.split(",");
+
 const io = require("socket.io")(httpServer, {
   cors: {
-    origin: "http://localhost:9000",
-    methods: ["GET", "POST"],
+    origin: allowedOrigins,
+    methods: ["GET", "POST", "PUT", "DELETE"],
   },
 });
 
@@ -60,18 +61,12 @@ if (process.env.API_CLUSTER) {
     });
   } else {
     httpServer.listen(port, () =>
-      console.log(
-        `Worker ID ${process.pid}, is running on http://localhost:` +
-          port +
-          "/v1"
-      )
+      console.log(`Worker ID ${process.pid}, is running:` + port + "/v1")
     );
   }
 } else {
   httpServer.listen(port, () =>
-    console.log(
-      `Worker ID ${process.pid}, is running on http://localhost:` + port + "/v1"
-    )
+    console.log(`Worker ID ${process.pid}, is running:` + port + "/v1")
   );
 }
 
