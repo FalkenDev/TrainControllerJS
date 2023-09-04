@@ -2,6 +2,7 @@ const fetch = require("node-fetch");
 const EventSource = require("eventsource");
 const sanitize = require("mongo-sanitize");
 const TrainTicket = require("../models/TrainTickets");
+const stationsController = require("./stations");
 
 const trains = {
   getAllTrainPositions: async function (io) {
@@ -80,6 +81,8 @@ const trains = {
   },
 
   getAllDelayedTrains: async function (res, body, path) {
+    const stationMapping = await stationsController.getAllStations();
+
     const query = `<REQUEST>
                   <LOGIN authenticationkey="${process.env.TRAFIKVERKET_API_KEY}" />
                   <QUERY objecttype="TrainAnnouncement" orderby='AdvertisedTimeAtLocation' schemaversion="1.8">
@@ -108,23 +111,47 @@ const trains = {
                   </QUERY>
             </REQUEST>`;
 
-    const response = fetch(
-      "https://api.trafikinfo.trafikverket.se/v2/data.json",
-      {
-        method: "POST",
-        body: query,
-        headers: { "Content-Type": "text/xml" },
-      }
-    )
-      .then(function (response) {
-        return response.json();
-      })
-      .then(function (result) {
-        return res.json({
-          data: result.RESPONSE.RESULT[0].TrainAnnouncement,
+    fetch("https://api.trafikinfo.trafikverket.se/v2/data.json", {
+      method: "POST",
+      body: query,
+      headers: { "Content-Type": "text/xml" },
+    })
+      .then((response) => response.json())
+      .then((result) => {
+        const trainAnnouncements = result.RESPONSE.RESULT[0].TrainAnnouncement;
+
+        for (let train of trainAnnouncements) {
+          if (
+            train.FromLocation &&
+            train.FromLocation.length &&
+            train.FromLocation[0].LocationName
+          ) {
+            train.FromLocation[0].LocationName =
+              stationMapping[train.FromLocation[0].LocationName] ||
+              train.FromLocation[0].LocationName;
+          }
+          if (
+            train.ToLocation &&
+            train.ToLocation.length &&
+            train.ToLocation[0].LocationName
+          ) {
+            train.ToLocation[0].LocationName =
+              stationMapping[train.ToLocation[0].LocationName] ||
+              train.ToLocation[0].LocationName;
+          }
+          if (train.LocationSignature) {
+            train.LocationSignature =
+              stationMapping[train.LocationSignature] ||
+              train.LocationSignature;
+          }
+        }
+
+        res.json({
+          data: trainAnnouncements,
         });
       });
   },
+
   getAllCodes: async function (res, body, path) {
     const query = `<REQUEST>
                   <LOGIN authenticationkey="${process.env.TRAFIKVERKET_API_KEY}" />
