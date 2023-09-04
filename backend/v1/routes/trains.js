@@ -2,8 +2,6 @@ const express = require("express");
 const router = express.Router();
 const trainController = require("../controllers/trains");
 
-router.get("/all", (req, res) => trainController.getAllTrainPositions(res));
-
 router.get("/delayed", (req, res) =>
   trainController.getAllDelayedTrains(res, req.body, req.path)
 );

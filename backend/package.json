@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "starts": "node index.js",
+    "start": "node index.js",
     "nodemon": "nodemon index.js"
   },
   "author": "FalkenDev / JamesTTTT",

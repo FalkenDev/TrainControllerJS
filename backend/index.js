@@ -34,17 +34,16 @@ app.use(filter());
 app.use("/v1", v1);
 database.run;
 
-const httpServer = require("http").createServer(app); // Create an HTTP server
+const httpServer = require("http").createServer(app);
 
 const io = require("socket.io")(httpServer, {
-  // Attach Socket.io to the server
   cors: {
     origin: "http://localhost:9000",
     methods: ["GET", "POST"],
   },
 });
 
-const port = process.env.REST_API_PORT || 8393;
+const port = process.env.PORT || 8393;
 
 if (process.env.API_CLUSTER) {
   if (cluster.isPrimary) {
@@ -61,7 +60,6 @@ if (process.env.API_CLUSTER) {
     });
   } else {
     httpServer.listen(port, () =>
-      // Use httpServer here
       console.log(
         `Worker ID ${process.pid}, is running on http://localhost:` +
           port +
@@ -71,7 +69,6 @@ if (process.env.API_CLUSTER) {
   }
 } else {
   httpServer.listen(port, () =>
-    // Use httpServer here
     console.log(
       `Worker ID ${process.pid}, is running on http://localhost:` + port + "/v1"
     )
