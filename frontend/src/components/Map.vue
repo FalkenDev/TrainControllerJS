@@ -3,22 +3,30 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { io } from "socket.io-client";
+import { onMounted, ref } from "vue";
 import L from "leaflet";
 
 onMounted(() => {
-  // Define map and initialize it
-  const map = L.map("map").setView([51.505, -0.09], 13);
-
-  // Add a tile layer to the map
+  const socket = io("http://localhost:8393");
+  const map = L.map("map").setView([62.173276, 14.942265], 5);
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19,
     attribution: "© OpenStreetMap contributors",
   }).addTo(map);
 
-  // Add a marker to the map
-  L.marker([51.5, -0.09])
-    .addTo(map)
-    .bindPopup("A pretty CSS3 popup.<br> Easily customizable.")
-    .openPopup();
+  const markers = ref({});
+
+  socket.on("message", (data) => {
+    console.log("data", data);
+    if (markers.value.hasOwnProperty(data.trainnumber)) {
+      let marker = markers.value[data.trainnumber];
+      marker.setLatLng(data.position);
+    } else {
+      markers.value[data.trainnumber] = L.marker(data.position)
+        .bindPopup(data.trainnumber)
+        .addTo(map);
+    }
+  });
 });
 </script>

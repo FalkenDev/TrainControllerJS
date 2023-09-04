@@ -9,8 +9,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "dotenv": "^16.3.1",
     "leaflet": "^1.9.4",
     "oh-vue-icons": "^1.0.0-rc3",
+    "socket.io-client": "^4.7.2",
     "vue": "^3.3.4"
   },
   "devDependencies": {
