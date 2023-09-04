@@ -1,5 +1,5 @@
 <template>
-  <div id="map" class="h-full"></div>
+  <div id="map" class="h-full z-0"></div>
 </template>
 
 <script setup>
@@ -18,7 +18,6 @@ onMounted(() => {
   const markers = ref({});
 
   socket.on("message", (data) => {
-    console.log("data", data);
     if (markers.value.hasOwnProperty(data.trainnumber)) {
       let marker = markers.value[data.trainnumber];
       marker.setLatLng(data.position);
