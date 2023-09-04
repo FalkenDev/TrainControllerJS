@@ -1,7 +1,7 @@
 <script setup>
 import TrainCard from "./TrainCard.vue";
 
-defineProps({
+const prop = defineProps({
   trains: Array,
   toggleDetails: Function,
 });
