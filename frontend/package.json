@@ -9,6 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "leaflet": "^1.9.4",
+    "oh-vue-icons": "^1.0.0-rc3",
     "vue": "^3.3.4"
   },
   "devDependencies": {

@@ -1,11 +1,11 @@
 <script setup>
-import Home from './components/Home.vue'
+import Home from "./components/Home.vue";
 import Header from "./components/Header.vue";
 </script>
 
 <template>
-  <div class="h-screen w-screen flex flex-col">
-    <Header/>
+  <div class="max-h-screen h-screen w-screen flex flex-col overflow-hidden">
+    <Header />
     <Home msg="Vår tåg App" />
   </div>
 </template>
