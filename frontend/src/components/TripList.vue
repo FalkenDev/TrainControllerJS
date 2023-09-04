@@ -1,7 +1,8 @@
 <script setup>
 import TrainCard from "./TrainCard.vue";
 
-const prop = defineProps({
+defineProps({
+  setTrain: Function,
   trains: Array,
   toggleDetails: Function,
 });
@@ -11,7 +12,12 @@ const prop = defineProps({
   <div class="h-full w-full p-3 overflow-y-scroll">
     <TrainCard
       v-for="train in trains"
-      @click="toggleDetails"
+      @click="
+        () => {
+          setTrain(train);
+          toggleDetails();
+        }
+      "
       :key="train.trainNr"
       :trainData="train"
     />
