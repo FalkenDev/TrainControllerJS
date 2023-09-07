@@ -11,6 +11,7 @@
   "author": "FalkenDev / JamesTTTT",
   "license": "ISC",
   "dependencies": {
+    "apollo-server-express": "^3.12.1",
     "body-parser": "^1.20.2",
     "content-filter": "^1.1.2",
     "cookie-parser": "^1.4.6",
@@ -19,6 +20,7 @@
     "eventsource": "^2.0.2",
     "express": "^4.18.2",
     "express-rate-limit": "^6.10.0",
+    "graphql": "^16.8.0",
     "mongo-sanitize": "^1.1.0",
     "mongodb": "^6.0.0",
     "mongoose": "^7.5.0",
