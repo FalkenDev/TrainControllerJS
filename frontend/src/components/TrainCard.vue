@@ -13,8 +13,6 @@ const calcDelay = (estimated, advertised) => {
 };
 
 const companyLogo = (TrainOwner) => {
-  console.log("companyLogo");
-  console.log(TrainOwner);
   const logos = {
     "Ö-TÅG": { src: ÖTÅG, width: "7", height: "6" },
     SJ: { src: SJ, width: "9", height: "6" },
