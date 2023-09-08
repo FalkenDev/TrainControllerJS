@@ -1,6 +1,4 @@
 <script setup>
-import { computed } from "vue";
-
 const props = defineProps({
   trainData: Object,
 });
@@ -44,12 +42,14 @@ const getTags = () => {
   <div class="p-2 shadow my-2 cursor-pointer">
     <div class="flex flex-row justify-between mb-2">
       <h1 class="text-base font-bold">
-        Nr.{{ trainData.OperationalTrainNumber }}
+        <v-icon name="md-train-round" /> Nr.{{
+          trainData.OperationalTrainNumber
+        }}
       </h1>
       <p
-        class="p-1 border font-semibold text-green-500 border-green-500 text-xs rounded-lg"
+        class="p-1 flex items-center border font-semibold text-green-500 border-green-500 text-xs rounded-lg"
       >
-        {{ trainData.LocationSignature }}
+        <v-icon name="co-location-pin" /> {{ trainData.LocationSignature }}
       </p>
     </div>
     <div class="flex flex-row justify-between text-sm">
@@ -61,7 +61,6 @@ const getTags = () => {
               : "N/A"
           }}
         </p>
-        <p>{{ trainData.startTime }}</p>
       </div>
       <div class="text-right font-semibold">
         <p>
