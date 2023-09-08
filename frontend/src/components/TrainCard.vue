@@ -12,6 +12,28 @@ const calcDelay = (estimated, advertised) => {
   return Math.ceil(diffInMilliseconds / 60000);
 };
 
+const companyLogo = (TrainOwner) => {
+  console.log("companyLogo");
+  console.log(TrainOwner);
+  const logos = {
+    "Ö-TÅG": { src: ÖTÅG, width: "7", height: "6" },
+    SJ: { src: SJ, width: "9", height: "6" },
+    SKANE: { src: SKANE, width: "7", height: "6" },
+    SLL: { src: SLL, width: "7", height: "6" },
+    TÅGAB: { src: togab, width: "7", height: "6" },
+    VY: { src: VY, width: "10", height: "6" },
+    MÄLAB: { src: malartag, width: "9", height: "6" },
+    BLSRAIL: { src: blsrail, width: "8", height: "10" },
+    JLT: { src: jlt, width: "7", height: "6" },
+    MTAB: { src: mtab, width: "7", height: "6" },
+    MTRN: { src: mtrx, width: "11", height: "6" },
+    NRAIL: { src: nrail, width: "10", height: "10" },
+    VASTTRAF: { src: vast, width: "7", height: "7" },
+  };
+
+  return logos[TrainOwner] || { src: "", width: "0", height: "0" };
+};
+
 const formatTimes = (time) => {
   const formattedTime = new Date(time);
   const hours = formattedTime.getHours().toString().padStart(2, "0");
@@ -27,7 +49,7 @@ const getTags = () => {
         ? "Canceled"
         : `${calcDelay(
             props.trainData.EstimatedTimeAtLocation,
-            props.trainData.AdvertisedTimeAtLocation,
+            props.trainData.AdvertisedTimeAtLocation
           )} min`,
     },
     {
@@ -41,11 +63,19 @@ const getTags = () => {
 <template>
   <div class="p-2 shadow my-2 cursor-pointer">
     <div class="flex flex-row justify-between mb-2">
-      <h1 class="text-base font-bold">
-        <v-icon name="md-train-round" /> Nr.{{
-          trainData.OperationalTrainNumber
-        }}
-      </h1>
+      <div class="flex">
+        <img
+          v-if="companyLogo(trainData.TrainOwner).src"
+          :src="companyLogo(trainData.TrainOwner).src"
+          :class="`w-${companyLogo(trainData.TrainOwner).width} h-${
+            companyLogo(trainData.TrainOwner).height
+          } mr-2`"
+        />
+        <h1 class="text-base font-bold">
+          Nr.{{ trainData.OperationalTrainNumber }}
+        </h1>
+      </div>
+
       <p
         class="p-1 flex items-center border font-semibold text-green-500 border-green-500 text-xs rounded-lg"
       >
