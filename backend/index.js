@@ -37,7 +37,7 @@ const app = express();
 app.use(apiLimiter);
 app.disable("x-powered-by");
 app.set("view engine", "ejs");
-app.use(cors(corsOptions)); // Use this middleware before your routes are set up
+app.use(cors(corsOptions));
 app.use(cookieParser(process.env.COOKIE_KEY));
 app.use(require("morgan")("combined"));
 app.use(bodyParser.json());
