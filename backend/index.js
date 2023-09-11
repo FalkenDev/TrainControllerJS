@@ -19,11 +19,25 @@ const apiLimiter = RateLimit({
   legacyHeaders: false,
 });
 
+const allowedOrigins = process.env.ALLOWED_ORIGINS.split(",");
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  credentials: true,
+  optionsSuccessStatus: 204
+};
+
 const app = express();
 app.use(apiLimiter);
 app.disable("x-powered-by");
 app.set("view engine", "ejs");
-app.options("*", cors());
+app.use(cors(corsOptions)); // Use this middleware before your routes are set up
 app.use(cookieParser(process.env.COOKIE_KEY));
 app.use(require("morgan")("combined"));
 app.use(bodyParser.json());
@@ -34,9 +48,6 @@ app.use("/v1", v1);
 database.run;
 
 const httpServer = require("http").createServer(app);
-
-const allowedOrigins = process.env.ALLOWED_ORIGINS.split(",");
-
 const io = require("socket.io")(httpServer, {
   cors: {
     origin: allowedOrigins,
