@@ -63,9 +63,9 @@ export const train_api = {
     const API_URL = import.meta.env.VITE_API_URL;
     const response = await fetch(`${API_URL}/v1/trains/tickets/${trainNr}`, {
       method: "POST",
-      body: {
+      body: JSON.stringify({
         code: code,
-      },
+      }),
       headers: {
         "Content-Type": "application/json",
       },
@@ -73,7 +73,19 @@ export const train_api = {
     if (response.ok) {
       return await response.json();
     } else {
-      throw new Error("Failed to fetch tickets");
+      throw new Error("Failed to create tickets");
+    }
+  },
+
+  deleteTicket: async (ticketId) => {
+    const API_URL = import.meta.env.VITE_API_URL;
+    const response = await fetch(`${API_URL}/v1/trains/tickets/${ticketId}`, {
+      method: "DELETE",
+    });
+    if (response.ok) {
+      return await response.json();
+    } else {
+      throw new Error("Failed to delete ticket");
     }
   },
 };

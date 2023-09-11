@@ -42,9 +42,8 @@ const getTags = () => {
   <div class="p-2 shadow my-2 cursor-pointer">
     <div class="flex flex-row justify-between mb-2">
       <h1 class="text-base font-bold">
-        <v-icon name="md-train-round" /> Nr.{{
-          trainData.OperationalTrainNumber
-        }}
+        <v-icon name="md-train-round" />
+        <span>Nr.{{ trainData.OperationalTrainNumber }}</span>
       </h1>
       <p
         class="p-1 flex items-center border font-semibold text-green-500 border-green-500 text-xs rounded-lg"

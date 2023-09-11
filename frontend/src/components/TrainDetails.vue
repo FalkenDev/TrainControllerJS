@@ -1,23 +1,47 @@
 <script setup>
 import { train_api } from "../models/trains.js";
-import { ref } from "vue";
+import { ref, watch } from "vue";
 const props = defineProps({
   trainData: Object,
   toggleSide: Function,
   codes: Array,
-  tickets: Array,
 });
 
 const selectedRef = ref("ANA002");
-
+const allTickets = ref([]);
 const setSelectedRef = (val) => {
   console.log(val);
   selectedRef.value = val;
 };
+
+const fetchTickets = async () => {
+  const res = await train_api.fetchAllTickets();
+  allTickets.value = res.data;
+};
+
+fetchTickets();
+watch(selectedRef, fetchTickets);
+
+const createAndFetchTickets = async () => {
+  await train_api.createTicket(
+    props.trainData.OperationalTrainNumber,
+    selectedRef.value,
+  );
+  await fetchTickets();
+};
+
+const deleteAndFetchTickets = async (ticketId) => {
+  try {
+    await train_api.deleteTicket(ticketId);
+    await fetchTickets();
+  } catch (error) {
+    console.error("Could not delete the ticket:", error);
+  }
+};
 </script>
 
 <template>
-  <div class="w-full bg-white h-full right-0 p-2 z-20">
+  <div class="w-full bg-white h-full right-0 p-2 z-20 overflow-y-scroll">
     <div class="flex justify-between">
       <h1 class="text-xl font-semibold">Detaljer</h1>
       <button @click="toggleSide">
@@ -59,9 +83,7 @@ const setSelectedRef = (val) => {
         </option>
       </select>
       <button
-        @click="
-          train_api.createTicket(trainData.OperationalTrainNumber, selectedRef)
-        "
+        @click="createAndFetchTickets"
         class="py-1 px-2 rounded-lg my-3 hover:bg-blue-600 transition-colors bg-blue-500 text-white"
       >
         Lägg till ärenden
@@ -70,7 +92,9 @@ const setSelectedRef = (val) => {
       <div>
         <h1>Befintliga ärenden</h1>
       </div>
-      <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+      <table
+        class="w-full text-sm text-left text-gray-500 dark:text-gray-400 mb-11"
+      >
         <thead
           class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
         >
@@ -82,11 +106,18 @@ const setSelectedRef = (val) => {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="ticket in tickets">
+          <tr v-for="ticket in allTickets">
             <td>{{ ticket.trainNr }}</td>
             <td>{{ ticket.code }}</td>
             <td>{{ new Date(ticket.createdAt).toLocaleString() }}</td>
-            <td><button class="text-black">Radera</button></td>
+            <td>
+              <button
+                @click="() => deleteAndFetchTickets(ticket._id)"
+                class="text-black"
+              >
+                Radera
+              </button>
+            </td>
           </tr>
         </tbody>
       </table>

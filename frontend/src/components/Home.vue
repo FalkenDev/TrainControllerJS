@@ -10,7 +10,6 @@ const showDetails = ref(false);
 const delayedTrains = ref([]);
 const inspectTrain = ref({});
 const codes = ref([]);
-const tickets = ref([]);
 const displayTrue = () => {
   showDetails.value = true;
 };
@@ -28,6 +27,7 @@ onMounted(async () => {
   try {
     const res = await train_api.fetchDelayedTrains();
     delayedTrains.value = res.data;
+    console.log("Trains", res.data);
   } catch (error) {
     console.log("Error:", error);
   }
@@ -35,14 +35,7 @@ onMounted(async () => {
   try {
     const res = await train_api.fetchCodes();
     codes.value = res.data;
-  } catch (error) {
-    console.log("Error:", error);
-  }
-  // fetch tickets
-  try {
-    const res = await train_api.fetchAllTickets();
-    console.log(res);
-    tickets.value = res.data;
+    console.log("Codes", res.data);
   } catch (error) {
     console.log("Error:", error);
   }
@@ -62,7 +55,6 @@ onMounted(async () => {
         :trainData="inspectTrain"
         :toggleSide="displayFalse"
         :codes="codes"
-        :tickets="tickets"
         v-if="showDetails"
       />
       <Map v-else />
