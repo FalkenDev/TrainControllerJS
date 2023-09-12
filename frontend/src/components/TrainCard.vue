@@ -93,7 +93,6 @@ export default {
           Nr.{{ trainData.OperationalTrainNumber }}
         </h1>
       </div>
-
       <p
         class="p-1 flex items-center border font-semibold text-green-500 border-green-500 text-xs rounded-lg"
       >
