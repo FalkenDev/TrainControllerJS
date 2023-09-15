@@ -8,7 +8,8 @@ import { onMounted, ref } from "vue";
 import L from "leaflet";
 
 onMounted(() => {
-  const socket = io("http://localhost:8393");
+  const API_URL = import.meta.env.VITE_API_URL;
+  const socket = io(API_URL);
   const map = L.map("map").setView([62.173276, 14.942265], 5);
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 19,
