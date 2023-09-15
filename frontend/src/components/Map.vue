@@ -8,7 +8,7 @@ import { onMounted, ref } from "vue";
 import L from "leaflet";
 
 onMounted(() => {
-  const socket = io("http://localhost:8393");
+  const socket = io("https://jsramverk-editor-kafa21.azurewebsites.net");
   const map = L.map("map").setView([62.173276, 14.942265], 5);
 
   // Create a custom SVG string
