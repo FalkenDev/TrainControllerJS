@@ -1,6 +1,6 @@
 export const train_api = {
   fetchDelayedTrains: async () => {
-    const API_URL = import.meta.env.VITE_API_URL;
+    const API_URL = "https://jsramverk-editor-kafa21.azurewebsites.net";
     const response = await fetch(`${API_URL}/v1/trains/delayed`, {
       method: "GET",
       headers: {
@@ -15,7 +15,7 @@ export const train_api = {
   },
 
   fetchCodes: async () => {
-    const API_URL = import.meta.env.VITE_API_URL;
+    const API_URL = "https://jsramverk-editor-kafa21.azurewebsites.net";
     const response = await fetch(`${API_URL}/v1/trains/codes`, {
       method: "GET",
       headers: {
@@ -30,7 +30,7 @@ export const train_api = {
   },
 
   fetchAllTickets: async () => {
-    const API_URL = import.meta.env.VITE_API_URL;
+    const API_URL = "https://jsramverk-editor-kafa21.azurewebsites.net";
     const response = await fetch(`${API_URL}/v1/trains/tickets/`, {
       method: "GET",
       headers: {
@@ -45,7 +45,7 @@ export const train_api = {
   },
 
   fetchSpecificTickets: async (trainNr) => {
-    const API_URL = import.meta.env.VITE_API_URL;
+    const API_URL = "https://jsramverk-editor-kafa21.azurewebsites.net";
     const response = await fetch(`${API_URL}/v1/trains/tickets/${trainNr}`, {
       method: "GET",
       headers: {
@@ -60,7 +60,7 @@ export const train_api = {
   },
 
   createTicket: async (trainNr, code) => {
-    const API_URL = import.meta.env.VITE_API_URL;
+    const API_URL = "https://jsramverk-editor-kafa21.azurewebsites.net";
     const response = await fetch(`${API_URL}/v1/trains/tickets/${trainNr}`, {
       method: "POST",
       body: JSON.stringify({
@@ -78,7 +78,7 @@ export const train_api = {
   },
 
   deleteTicket: async (ticketId) => {
-    const API_URL = import.meta.env.VITE_API_URL;
+    const API_URL = "https://jsramverk-editor-kafa21.azurewebsites.net";
     const response = await fetch(`${API_URL}/v1/trains/tickets/${ticketId}`, {
       method: "DELETE",
     });
