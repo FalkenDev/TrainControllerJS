@@ -1,19 +1,19 @@
-const sqlite3 = require('sqlite3').verbose();
-const { open } = require('sqlite');
+const mongoose = require("mongoose");
 
-const database = {
-    openDb: async function openDb() {
-        let dbFilename = `./db/trains.sqlite`;
+const uri = `mongodb+srv://${process.env.ATLAS_USERNAME}:${process.env.ATLAS_PASSWORD}@jsramverk.9wdcjk6.mongodb.net/JsRamverk?retryWrites=true&w=majority`;
 
-        if (process.env.NODE_ENV === 'test') {
-            dbFilename = "./db/test.sqlite";
-        }
+async function connect() {
+  try {
+    await mongoose.connect(uri, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log("Connected to MongoDB using Mongoose!");
+  } catch (error) {
+    console.error("Error connecting to MongoDB with Mongoose", error);
+  }
+}
 
-        return await open({
-            filename: dbFilename,
-            driver: sqlite3.Database
-        });
-    }
-};
+connect();
 
-module.exports = database;
+module.exports = mongoose;

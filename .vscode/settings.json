@@ -1,0 +1,4 @@
+{
+  "appService.defaultWebAppToDeploy": "/subscriptions/281ba416-34c9-44a3-a786-92533b8181dc/resourceGroups/DIDA-KAFA21-DV1677-H23-LP1/providers/Microsoft.Web/sites/jsramverk-editor-kafa21",
+  "appService.deploySubpath": "backend"
+}
