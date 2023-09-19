@@ -6,6 +6,6 @@ import Header from "./components/Header.vue";
 <template>
   <div class="max-h-screen h-screen w-screen flex flex-col overflow-hidden">
     <Header />
-    <Home msg="Vår tåg App" />
+    <Home />
   </div>
 </template>
