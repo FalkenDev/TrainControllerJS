@@ -1,15 +1,19 @@
 <script setup>
-import { onMounted, ref, toRaw } from "vue";
+import { onMounted, ref, isRef, provide } from "vue";
 import TripList from "./TripList.vue";
 import Map from "./Map.vue";
 import TrainDetails from "./TrainDetails.vue";
 import { train_api } from "../models/trains.js";
-import { trainList } from "../mockData/data.js";
+import { io } from "socket.io-client";
 
 const showDetails = ref(false);
 const delayedTrains = ref([]);
 const inspectTrain = ref({});
 const codes = ref([]);
+
+const canEditTrain = ref(false);
+provide("canEditTrain", canEditTrain);
+
 const displayTrue = () => {
   showDetails.value = true;
 };
@@ -22,12 +26,21 @@ const setInspectTrain = (value) => {
   inspectTrain.value = value;
 };
 
+const updateCanEditTrain = (val) => {
+  if (isRef(canEditTrain)) {
+    canEditTrain.value = val;
+  } else {
+    console.error("canEditTrain is not a ref", val);
+  }
+};
+
+const socket = io("http://localhost:8393");
+
 onMounted(async () => {
   // fetch delayed trains
   try {
     const res = await train_api.fetchDelayedTrains();
     delayedTrains.value = res.data;
-    console.log("Trains", res.data);
   } catch (error) {
     console.log("Error:", error);
   }
@@ -35,7 +48,6 @@ onMounted(async () => {
   try {
     const res = await train_api.fetchCodes();
     codes.value = res.data;
-    console.log("Codes", res.data);
   } catch (error) {
     console.log("Error:", error);
   }
@@ -48,6 +60,8 @@ onMounted(async () => {
         :setTrain="setInspectTrain"
         :trains="delayedTrains"
         :toggle-details="displayTrue"
+        :socket="socket"
+        @update:canEdit="updateCanEditTrain"
       />
     </div>
     <div class="border-2 w-full">
@@ -55,9 +69,11 @@ onMounted(async () => {
         :trainData="inspectTrain"
         :toggleSide="displayFalse"
         :codes="codes"
+        :socket="socket"
+        :canEditTrain="canEditTrain.value"
         v-if="showDetails"
       />
-      <Map v-else />
+      <Map :socket="socket" v-else />
     </div>
   </div>
 </template>
