@@ -3,12 +3,16 @@
 </template>
 
 <script setup>
-import { io } from "socket.io-client";
-import { onMounted, ref } from "vue";
+import { onBeforeUnmount, onMounted, ref } from "vue";
 import L from "leaflet";
 
+const props = defineProps(["socket"]);
+
+onBeforeUnmount(() => {
+  props.socket.off("getTrainPositions");
+});
+
 onMounted(() => {
-  const socket = io("https://jsramverk-editor-kafa21.azurewebsites.net");
   const map = L.map("map").setView([62.173276, 14.942265], 5);
 
   // Create a custom SVG string
@@ -33,7 +37,7 @@ onMounted(() => {
 
   const markers = ref({});
 
-  socket.on("message", (data) => {
+  props.socket.on("getTrainPositions", (data) => {
     if (markers.value.hasOwnProperty(data.trainnumber)) {
       let marker = markers.value[data.trainnumber];
       marker.setLatLng(data.position);

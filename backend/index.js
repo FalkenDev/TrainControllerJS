@@ -9,6 +9,8 @@ const filter = require("content-filter");
 const { ApolloServer, gql } = require("apollo-server-express");
 const typeDefs = require("./v1/graphQL/typeDefs");
 const resolvers = require("./v1/graphQL/resolvers");
+const ticketSocketHandling = require("./v1/sockets/ticketHandling");
+const trainSocketHandling = require("./v1/sockets/trainHandling");
 
 const database = require("./db/database");
 const v1 = require("./v1/index.js");
@@ -29,12 +31,12 @@ const corsOptions = {
     if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      callback(new Error("Not allowed by CORS"));
     }
   },
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   credentials: true,
-  optionsSuccessStatus: 204
+  optionsSuccessStatus: 204,
 };
 
 const app = express();
@@ -104,6 +106,8 @@ async function serverStart() {
       console.log(`Server is running on http://localhost:` + port + "/v1")
     );
   }
+  ticketSocketHandling(io);
+  trainSocketHandling(io);
 }
 
 serverStart();
