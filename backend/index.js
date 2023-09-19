@@ -106,7 +106,6 @@ async function serverStart() {
       console.log(`Server is running on http://localhost:` + port + "/v1")
     );
   }
-
   ticketSocketHandling(io);
   trainSocketHandling(io);
 }

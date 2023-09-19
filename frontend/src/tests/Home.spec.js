@@ -21,6 +21,7 @@ vi.mock("leaflet", () => ({
     tileLayer: vi.fn().mockReturnValue({
       addTo: vi.fn(),
     }),
+    divIcon: vi.fn(),
   },
 }));
 describe("Home", () => {
