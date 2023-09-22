@@ -29,21 +29,63 @@ const setInspectTrain = (value) => {
 const updateCanEditTrain = (val) => {
   if (isRef(canEditTrain)) {
     canEditTrain.value = val;
-  } else {
-    console.error("canEditTrain is not a ref", val);
   }
 };
 
-const socket = io("https://jsramverk-editor-kafa21.azurewebsites.net/");
-
-onMounted(async () => {
-  // fetch delayed trains
+async function fetchAndProcessDelayedTrains() {
   try {
     const res = await train_api.fetchDelayedTrains();
-    delayedTrains.value = res.data;
+
+    const currentTime = new Date();
+    const trainMap = {};
+
+    for (const train of res.data) {
+      if (!trainMap[train.OperationalTrainNumber]) {
+        trainMap[train.OperationalTrainNumber] = [];
+      }
+      trainMap[train.OperationalTrainNumber].push(train);
+    }
+
+    const displayedTrains = [];
+
+    for (const trainNumber in trainMap) {
+      const trains = trainMap[trainNumber];
+      trains.sort((a, b) => {
+        const timeA = new Date(a.EstimatedTimeAtLocation);
+        const timeB = new Date(b.EstimatedTimeAtLocation);
+
+        const diffA = timeA - currentTime;
+        const diffB = timeB - currentTime;
+
+        if ((diffA >= 0 && diffB >= 0) || (diffA < 0 && diffB < 0)) {
+          return Math.abs(diffA) - Math.abs(diffB);
+        }
+
+        return diffA - diffB;
+      });
+
+      const mostRelevantTrain = trains[0];
+      mostRelevantTrain.history = trains;
+
+      displayedTrains.push(mostRelevantTrain);
+    }
+    delayedTrains.value = displayedTrains;
   } catch (error) {
     console.log("Error:", error);
   }
+}
+
+const socket = io("http://localhost:8393/");
+
+onMounted(async () => {
+  // Define the function to fetch and process delayed trains
+
+  // Call the function immediately
+  fetchAndProcessDelayedTrains();
+
+  // Set up the interval to call the function every 100 seconds
+  window.setInterval(fetchAndProcessDelayedTrains, 100000);
+
   // fetch codes
   try {
     const res = await train_api.fetchCodes();

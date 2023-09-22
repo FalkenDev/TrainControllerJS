@@ -2,7 +2,7 @@
 const emit = defineEmits(["update:canEdit"]);
 
 import TrainCard from "./TrainCard.vue";
-import { onUnmounted } from "vue";
+import { onUnmounted, computed } from "vue";
 
 const props = defineProps({
   setTrain: Function,
@@ -13,13 +13,11 @@ const props = defineProps({
 
 let beforeTrain = "";
 
-props.socket.on("ticketHandling", (message) => {
-  console.log(message);
+props.socket.on("ticketHandling", () => {
   emit("update:canEdit", true);
 });
 
-props.socket.on("ticketHandlingFull", (message) => {
-  console.log(message);
+props.socket.on("ticketHandlingFull", () => {
   emit("update:canEdit", false);
 });
 
@@ -29,7 +27,6 @@ const socketTicketSelectedTrain = (trainNr) => {
 };
 
 const leaveTrainTicketRoom = () => {
-  console.log("Leaving the room on train:", beforeTrain);
   props.socket.emit("ticketHandlingLeave", beforeTrain);
 };
 
@@ -37,12 +34,21 @@ const leaveTrainTicketRoom = () => {
 onUnmounted(() => {
   props.socket.close();
 });
+
+// Computed property for sorted trains
+const sortedTrains = computed(() => {
+  return props.trains.slice().sort((a, b) => {
+    return (
+      new Date(a.EstimatedTimeAtLocation) - new Date(b.EstimatedTimeAtLocation)
+    );
+  });
+});
 </script>
 
 <template>
   <div class="h-full w-full p-3 overflow-y-scroll">
     <TrainCard
-      v-for="train in trains"
+      v-for="train in sortedTrains"
       @click="
         () => {
           setTrain(train);

@@ -88,4 +88,21 @@ export const train_api = {
       throw new Error("Failed to delete ticket");
     }
   },
+  editTicket: async (ticketId, code) => {
+    const API_URL = "http://localhost:8393";
+    const response = await fetch(`${API_URL}/v1/trains/tickets/${ticketId}`, {
+      method: "PUT",
+      body: JSON.stringify({
+        code: code,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (response.ok) {
+      return await response.json();
+    } else {
+      throw new Error("Failed to edit ticket");
+    }
+  },
 };
