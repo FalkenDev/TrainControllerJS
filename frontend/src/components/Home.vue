@@ -5,6 +5,12 @@ import Map from "./Map.vue";
 import TrainDetails from "./TrainDetails.vue";
 import { train_api } from "../models/trains.js";
 import { io } from "socket.io-client";
+import AuthModal from "./AuthModal.vue";
+
+defineProps({
+  showAuth: Boolean,
+  hideLogin: Function,
+});
 
 const showDetails = ref(false);
 const delayedTrains = ref([]);
@@ -54,6 +60,7 @@ onMounted(async () => {
 });
 </script>
 <template>
+  <AuthModal v-if="showAuth" :hideLogin="hideLogin" />
   <div class="w-full h-full flex flex-row justify-between">
     <div class="border-2 w-105">
       <TripList
