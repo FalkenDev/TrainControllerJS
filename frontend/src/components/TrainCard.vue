@@ -43,7 +43,7 @@ const logos = {
 const markerImg = marker;
 
 const currentLogo = computed(
-  () => logos[props.trainData.TrainOwner] || { src: "" }
+  () => logos[props.trainData.TrainOwner] || { src: "" },
 );
 
 const calcDelay = (estimated, advertised) => {
@@ -78,7 +78,7 @@ const getTags = () => [
       ? "Canceled"
       : `${calcDelay(
           props.trainData.EstimatedTimeAtLocation,
-          props.trainData.AdvertisedTimeAtLocation
+          props.trainData.AdvertisedTimeAtLocation,
         )} min`,
   },
   {
@@ -130,23 +130,27 @@ const getTags = () => [
         </div>
       </div>
     </div>
-    <div class="w-full border-t self-center mt-2 pt-2 text-xs flex">
-      <span
-        class="p-1 border border-red-500 rounded-lg mr-1 text-red-500 pr-2 pl-2"
-        v-for="(item, index) in getTags()"
-        :key="index"
-        >{{ item.value }}</span
-      >
+    <div
+      class="w-full border-t self-center mt-2 pt-2 text-xs flex items-center justify-between"
+    >
+      <div>
+        <span
+          class="p-1 border border-red-500 rounded-lg mr-1 text-red-500 pr-2 pl-2"
+          v-for="(item, index) in getTags()"
+          :key="index"
+          >{{ item.value }}</span
+        >
+      </div>
       <button
         @click.stop="togglePosition(trainData.OperationalTrainNumber)"
         :class="{
-          'bg-blue-500 border-gray-700 text-white font-bold':
+          'text-red-600 font-bold':
             currentTrain.value === trainData.OperationalTrainNumber,
-          'border-red-500 text-red-500': currentTrain.value === undefined,
+          'border-gray-200 text-black': currentTrain.value === undefined,
         }"
-        class="p-1 border border-red-500 text-red-500 rounded-lg mr-1 h-7 flex items-center"
+        class="py-1 pl-2 pr-3 text-black flex items-center border-l"
       >
-        <img :src="markerImg" class="w-2 mr-1 ml-1" /> Visa Position
+        <v-icon name="co-location-pin" />Visa Position
       </button>
     </div>
   </div>
