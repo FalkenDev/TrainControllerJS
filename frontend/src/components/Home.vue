@@ -113,7 +113,7 @@ async function getDelayedTrainNumbers() {
   delayedTrainNumbers.value = trainNumbers;
 }
 
-const socket = io("http://localhost:8393/");
+const socket = io("https://jsramverk-editor-kafa21.azurewebsites.net/");
 
 onMounted(async () => {
   await fetchAndProcessDelayedTrains();
