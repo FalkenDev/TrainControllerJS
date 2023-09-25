@@ -10,4 +10,8 @@ router.post("/login", (req, res) => {
   authController.loginUser(res, req.body);
 });
 
+router.get("/user", (req, res) => {
+  authController.getUserData(res, req);
+});
+
 module.exports = router;
