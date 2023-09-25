@@ -133,10 +133,11 @@ onMounted(async () => {
 </script>
 <template>
   <AuthModal v-if="showAuth" :hideLogin="hideLogin" />
-  <div class="w-full h-full flex flex-row justify-between">
+  <div class="w-full h-full flex flex-row justify-between max-h-screen">
     <div class="border-2 w-105">
       <Filter @update:ShowDelayed="updateShowDelayed" />
       <TripList
+        class="maxHeightWithFilter"
         :setTrain="setInspectTrain"
         :trains="delayedTrains"
         :toggle-details="displayTrue"
@@ -145,7 +146,7 @@ onMounted(async () => {
         @update:showPosition="updateShowPosition"
       />
     </div>
-    <div class="border-2 w-full">
+    <div class="border-2 w-full max-h-screen maxHeight">
       <TrainDetails
         :trainData="inspectTrain"
         :toggleSide="displayFalse"
@@ -159,8 +160,16 @@ onMounted(async () => {
         :onlyShowDelayed="ShowDelayed"
         :socket="socket"
         :showSpecificTrain="showPosition"
-        v-else
       />
     </div>
   </div>
 </template>
+
+<style scoped>
+.maxHeight {
+  max-height: calc(100vh - 50px) !important;
+}
+.maxHeightWithFilter {
+  max-height: calc(100vh - 170px) !important;
+}
+</style>
