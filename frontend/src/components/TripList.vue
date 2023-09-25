@@ -53,11 +53,12 @@ const sortedTrains = computed(() => {
 </script>
 
 <template>
-  <div class="h-full w-full p-3 overflow-y-scroll">
+  <div class="h-full w-full p-3 overflow-y-scroll maxHeight">
     <h1 class="text-2xl font-semibold border-b-2 pb-2 mb-4 border-gray-300">
       Försenade tåg
     </h1>
     <TrainCard
+      class="maxHeight"
       v-for="train in sortedTrains"
       @click="
         () => {
@@ -74,3 +75,8 @@ const sortedTrains = computed(() => {
     />
   </div>
 </template>
+<style scoped>
+.maxHeight {
+  max-height: calc(100vh - 170px) !important;
+}
+</style>
