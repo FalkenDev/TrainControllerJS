@@ -1,9 +1,9 @@
 <template>
-  <div id="map" class="h-full z-0"></div>
+  <div id="map" class="h-full max-h-screen z-0"></div>
 </template>
 
 <script setup>
-import { onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { onBeforeUnmount, onMounted, ref, watch, nextTick } from "vue";
 import L from "leaflet";
 
 const props = defineProps([
@@ -13,119 +13,157 @@ const props = defineProps([
   "showSpecificTrain",
 ]);
 
+const markerAdd = async (data, markers, customIcon, map) => {
+  if (markers.value.hasOwnProperty(data.trainnumber)) {
+    let marker = markers.value[data.trainnumber];
+    marker.setLatLng(data.position).setOpacity(1);
+    marker.getElement().style.pointerEvents = "auto";
+  } else {
+    markers.value[data.trainnumber] = L.marker(data.position, {
+      icon: customIcon,
+    })
+      .bindPopup(data.trainnumber)
+      .addTo(map);
+  }
+};
+
+const markerRemove = async (data, markers) => {
+  if (markers.value.hasOwnProperty(data.trainnumber)) {
+    markers.value[data.trainnumber].setOpacity(0);
+    markers.value[data.trainnumber].getElement().style.pointerEvents = "none";
+  }
+};
+
 onBeforeUnmount(() => {
   props.socket.off("getTrainPositions");
 });
 
 onMounted(() => {
-  const map = L.map("map").setView([62.173276, 14.942265], 5);
+  nextTick(() => {
+    const map = L.map("map").setView([62.173276, 14.942265], 5);
+    map.invalidateSize();
 
-  // Create a custom SVG string
-  const svgString = `<svg viewBox="0 0 57 81" fill="none" xmlns="http://www.w3.org/2000/svg">
+    // Create a custom SVG string
+    const svgString = `<svg viewBox="0 0 57 81" fill="none" xmlns="http://www.w3.org/2000/svg">
 <ellipse cx="28.5" cy="28.5" rx="22.5" ry="21.5" fill="white"/>
 <path d="M0.733887 28.9711C0.733887 10.4926 15.4075 0.86483 28.6721 0.860109L28.6808 0.860464L28.7367 0.863098C28.7868 0.865637 28.8624 0.869868 28.9618 0.876549C29.1605 0.889913 29.4542 0.913073 29.8293 0.952083C30.5797 1.03012 31.6549 1.1715 32.9464 1.42448C35.5316 1.9309 38.9717 2.88223 42.4061 4.65954C45.8391 6.43616 49.2558 9.03236 51.8148 12.8256C54.371 16.6148 56.0899 21.6257 56.0899 28.2661C56.0899 38.1729 50.3909 51.1335 44.0285 61.6686C40.8547 66.924 37.5336 71.5466 34.7106 74.8492C33.2981 76.5019 32.0194 77.8132 30.9537 78.7067C30.4205 79.1538 29.9512 79.4872 29.5538 79.7065C29.1468 79.9311 28.8608 80.0101 28.6819 80.0101C28.5046 80.0101 28.2175 79.93 27.8054 79.701C27.4037 79.4777 26.9283 79.1384 26.3874 78.6843C25.3064 77.7768 24.0062 76.4471 22.568 74.7766C19.6939 71.4384 16.3047 66.7819 13.063 61.5331C9.82161 56.2847 6.7351 50.4562 4.46047 44.7754C2.18279 39.0869 0.733887 33.5825 0.733887 28.9711ZM8.40889 29.2131C8.40889 40.2592 17.3627 49.2151 28.4099 49.2151C39.458 49.2151 48.4119 40.2602 48.4119 29.2131C48.4119 18.165 39.457 9.21011 28.4099 9.21011C17.3647 9.21011 8.40889 18.165 8.40889 29.2131Z" fill="#275DD0" stroke="#002C8B"/>
 <path d="M35.9101 19.639C35.7931 18.836 35.0311 18.179 34.2191 18.179H22.6051C21.7921 18.179 21.0311 18.836 20.9121 19.639C20.9121 19.639 19.7361 27.58 19.7361 29.641C19.7361 31.701 20.3621 33.825 20.3621 33.825C20.5911 34.603 21.4451 35.241 22.2571 35.241H34.5681C35.3801 35.241 36.2271 34.602 36.4501 33.821C36.4501 33.821 37.0891 31.585 37.0891 29.612C37.0881 27.638 35.9101 19.639 35.9101 19.639ZM25.1041 20.078C25.1041 19.672 25.4371 19.34 25.8421 19.34H30.9831C31.3881 19.34 31.7211 19.672 31.7211 20.078V20.459C31.7211 20.865 31.3881 21.197 30.9831 21.197H25.8421C25.4371 21.197 25.1041 20.864 25.1041 20.459V20.078ZM23.1891 33.064C22.5391 33.064 22.0131 32.538 22.0131 31.889C22.0131 31.241 22.5381 30.714 23.1891 30.714C23.8371 30.714 24.3641 31.24 24.3641 31.889C24.3641 32.538 23.8381 33.064 23.1891 33.064ZM33.6351 33.064C32.9871 33.064 32.4601 32.538 32.4601 31.889C32.4601 31.241 32.9861 30.714 33.6351 30.714C34.2841 30.714 34.8111 31.24 34.8111 31.889C34.8111 32.538 34.2841 33.064 33.6351 33.064ZM33.5521 29.438H23.2721C22.4601 29.438 21.8661 28.777 21.9511 27.97L22.3901 23.826C22.4751 23.018 23.2081 22.358 24.0211 22.358H32.8021C33.6151 22.358 34.3481 23.019 34.4331 23.826L34.8721 27.97C34.9591 28.777 34.3631 29.438 33.5521 29.438Z" fill="#275DD0"/>
 <path d="M34.0819 39.5191C34.3269 39.7251 34.9679 39.8931 35.5059 39.8911C36.0429 39.8891 36.1459 39.5911 35.7319 39.2281L33.5099 37.2841C33.0959 36.9221 32.3149 36.6231 31.7729 36.6211C31.2309 36.6191 31.0749 36.8721 31.4259 37.1841C31.7789 37.4961 31.6149 37.7511 31.0669 37.7511H25.7579C25.2089 37.7511 25.0459 37.4961 25.3989 37.1841C25.7509 36.8721 25.5939 36.6191 25.0519 36.6211C24.5099 36.6231 23.7279 36.9211 23.3149 37.2841L21.0929 39.2281C20.6789 39.5901 20.7809 39.8881 21.3189 39.8911C21.8569 39.8931 22.4979 39.7251 22.7429 39.5191C22.9869 39.3131 23.6379 39.1441 24.1879 39.1441H32.6369C33.1879 39.1441 33.8379 39.3131 34.0819 39.5191Z" fill="#275DD0"/>
 </svg>`;
 
-  // Create a custom icon
-  const customIcon = L.divIcon({
-    className: "custom-icon",
-    iconSize: [30, 30],
-    html: svgString,
-  });
+    // Create a custom icon
+    const customIcon = L.divIcon({
+      className: "custom-icon",
+      iconSize: [30, 30],
+      html: svgString,
+    });
 
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    maxZoom: 19,
-    attribution: "© OpenStreetMap contributors",
-  }).addTo(map);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: "© OpenStreetMap contributors",
+    }).addTo(map);
 
-  const markers = ref({});
+    const markers = ref({});
 
-  watch(
-    () => props.showSpecificTrain.value,
-    (newVal) => {
-      for (const trainnumber in markers.value) {
-        if (newVal && props.showSpecificTrain.value === trainnumber) {
-          markers.value[trainnumber].setOpacity(1);
-          markers.value[trainnumber].getElement().style.pointerEvents = "auto";
+    watch(
+      () => props.showSpecificTrain.value,
+      (newVal) => {
+        if (newVal) {
+          for (const trainnumber in markers.value) {
+            if (newVal === trainnumber) {
+              markers.value[trainnumber].setOpacity(1);
+              markers.value[trainnumber].getElement().style.pointerEvents =
+                "auto";
+            } else {
+              markers.value[trainnumber].setOpacity(0);
+              markers.value[trainnumber].getElement().style.pointerEvents =
+                "none";
+            }
+          }
+        } else if (props.onlyShowDelayed.value) {
+          for (const trainnumber in markers.value) {
+            if (props.delayedTrains.includes(trainnumber)) {
+              markers.value[trainnumber].setOpacity(1);
+              markers.value[trainnumber].getElement().style.pointerEvents =
+                "auto";
+            } else {
+              markers.value[trainnumber].setOpacity(0);
+              markers.value[trainnumber].getElement().style.pointerEvents =
+                "none";
+            }
+          }
         } else {
-          markers.value[trainnumber].setOpacity(0);
-          markers.value[trainnumber].getElement().style.pointerEvents = "none";
+          for (const trainnumber in markers.value) {
+            markers.value[trainnumber].setOpacity(1);
+            markers.value[trainnumber].getElement().style.pointerEvents =
+              "auto";
+          }
         }
       }
-    }
-  );
+    );
 
-  watch(
-    () => props.onlyShowDelayed.value,
-    (newVal) => {
-      for (const trainnumber in markers.value) {
-        if (newVal && !props.delayedTrains.includes(trainnumber)) {
-          markers.value[trainnumber].setOpacity(0);
-          markers.value[trainnumber].getElement().style.pointerEvents = "none";
+    watch(
+      () => props.onlyShowDelayed.value,
+      (newVal) => {
+        if (props.showSpecificTrain.value != undefined) {
+          for (const trainnumber in markers.value) {
+            if (trainnumber === props.showSpecificTrain.value) {
+              markers.value[trainnumber].setOpacity(1);
+              markers.value[trainnumber].getElement().style.pointerEvents =
+                "auto";
+            } else {
+              markers.value[trainnumber].setOpacity(0);
+              markers.value[trainnumber].getElement().style.pointerEvents =
+                "none";
+            }
+          }
+        } else if (newVal) {
+          for (const trainnumber in markers.value) {
+            if (!props.delayedTrains.includes(trainnumber)) {
+              markers.value[trainnumber].setOpacity(0);
+              markers.value[trainnumber].getElement().style.pointerEvents =
+                "none";
+            } else {
+              markers.value[trainnumber].setOpacity(1);
+              markers.value[trainnumber].getElement().style.pointerEvents =
+                "auto";
+            }
+          }
         } else {
-          markers.value[trainnumber].setOpacity(1);
-          markers.value[trainnumber].getElement().style.pointerEvents = "auto";
+          for (const trainnumber in markers.value) {
+            markers.value[trainnumber].setOpacity(1);
+            markers.value[trainnumber].getElement().style.pointerEvents =
+              "auto";
+          }
         }
       }
-    }
-  );
+    );
 
-  props.socket.on("getTrainPositions", (data) => {
-    if (props.onlyShowDelayed) {
-      if (props.delayedTrains.includes(data.trainnumber)) {
-        if (markers.value.hasOwnProperty(data.trainnumber)) {
-          let marker = markers.value[data.trainnumber];
-          marker.setLatLng(data.position).setOpacity(1);
-          marker.getElement().style.pointerEvents = "auto";
+    props.socket.on("getTrainPositions", (data) => {
+      if (props.showSpecificTrain.value != undefined) {
+        if (data.trainnumber === props.showSpecificTrain.value) {
+          markerAdd(data, markers, customIcon, map);
         } else {
-          markers.value[data.trainnumber] = L.marker(data.position, {
-            icon: customIcon,
-          })
-            .bindPopup(data.trainnumber)
-            .addTo(map);
+          markerRemove(data, markers);
+        }
+      } else if (props.onlyShowDelayed) {
+        if (props.delayedTrains.includes(data.trainnumber)) {
+          if (markers.value.hasOwnProperty(data.trainnumber)) {
+            markerAdd(data, markers, customIcon, map);
+          } else {
+            markerRemove(data, markers);
+          }
         }
       } else {
-        if (markers.value.hasOwnProperty(data.trainnumber)) {
-          markers.value[data.trainnumber].setOpacity(0);
-          markers.value[data.trainnumber].getElement().style.pointerEvents =
-            "none";
-        }
+        markerAdd(data, markers, customIcon, map);
       }
-    } else if (props.showSpecificTrain.value != undefined) {
-      if (data.trainnumber === props.showSpecificTrain.value) {
-        if (markers.value.hasOwnProperty(data.trainnumber)) {
-          let marker = markers.value[data.trainnumber];
-          marker.setLatLng(data.position).setOpacity(1);
-          marker.getElement().style.pointerEvents = "auto";
-        } else {
-          markers.value[data.trainnumber] = L.marker(data.position, {
-            icon: customIcon,
-          })
-            .bindPopup(data.trainnumber)
-            .addTo(map);
-        }
-      } else {
-        if (markers.value.hasOwnProperty(data.trainnumber)) {
-          markers.value[data.trainnumber].setOpacity(0);
-          markers.value[data.trainnumber].getElement().style.pointerEvents =
-            "none";
-        }
-      }
-    } else {
-      if (markers.value.hasOwnProperty(data.trainnumber)) {
-        let marker = markers.value[data.trainnumber];
-        marker.setLatLng(data.position).setOpacity(1);
-        marker.getElement().style.pointerEvents = "auto";
-      } else {
-        markers.value[data.trainnumber] = L.marker(data.position, {
-          icon: customIcon,
-        })
-          .bindPopup(data.trainnumber)
-          .addTo(map);
-      }
-    }
+    });
   });
 });
 </script>
+<style scoped>
+#map {
+  height: 1000px;
+  width: 100%;
+}
+</style>
