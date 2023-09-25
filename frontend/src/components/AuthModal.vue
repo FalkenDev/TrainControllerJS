@@ -41,7 +41,7 @@ const submitForm = async () => {
       message.value = "Registration successful! Please log in.";
     } catch (error) {
       console.error("Registration Error:", error);
-      message.value = "Error: Registration failed"; // Set an appropriate error message for registration failure
+      message.value = "Error: Registration failed";
     }
   } else {
     // Handle login

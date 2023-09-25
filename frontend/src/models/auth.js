@@ -1,6 +1,6 @@
 export const auth = {
   login: async (email, password) => {
-    const API_URL = "http://localhost:8393";
+    const API_URL = "https://jsramverk-editor-kafa21.azurewebsites.net";
     const response = await fetch(`${API_URL}/v1/auth/login`, {
       method: "POST",
       headers: {
@@ -26,7 +26,7 @@ export const auth = {
 
   register: async (email, password) => {
     try {
-      const API_URL = "http://localhost:8393";
+      const API_URL = "https://jsramverk-editor-kafa21.azurewebsites.net";
       const response = await fetch(`${API_URL}/v1/auth/register`, {
         method: "POST",
         headers: {
@@ -49,7 +49,7 @@ export const auth = {
 
   fetchUserData: async () => {
     try {
-      const API_URL = "http://localhost:8393";
+      const API_URL = "https://jsramverk-editor-kafa21.azurewebsites.net";
       const token = localStorage.getItem("token");
 
       if (!token) {
