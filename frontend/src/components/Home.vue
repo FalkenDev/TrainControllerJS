@@ -5,6 +5,7 @@ import Map from "./Map.vue";
 import TrainDetails from "./TrainDetails.vue";
 import { train_api } from "../models/trains.js";
 import { io } from "socket.io-client";
+import Filter from "./Filter.vue";
 import AuthModal from "./AuthModal.vue";
 
 defineProps({
@@ -14,11 +15,16 @@ defineProps({
 
 const showDetails = ref(false);
 const delayedTrains = ref([]);
+const delayedTrainNumbers = ref([]);
 const inspectTrain = ref({});
 const codes = ref([]);
 
 const canEditTrain = ref(false);
+const ShowDelayed = ref(false);
 provide("canEditTrain", canEditTrain);
+
+const showPosition = ref({});
+provide("showPosition", showPosition);
 
 const displayTrue = () => {
   showDetails.value = true;
@@ -35,6 +41,18 @@ const setInspectTrain = (value) => {
 const updateCanEditTrain = (val) => {
   if (isRef(canEditTrain)) {
     canEditTrain.value = val;
+  }
+};
+
+const updateShowPosition = (val) => {
+  if (isRef(showPosition)) {
+    showPosition.value = val;
+  }
+};
+
+const updateShowDelayed = (val) => {
+  if (isRef(canEditTrain)) {
+    ShowDelayed.value = val;
   }
 };
 
@@ -81,16 +99,28 @@ async function fetchAndProcessDelayedTrains() {
   }
 }
 
+async function getDelayedTrainNumbers() {
+  const trainNumbers = delayedTrains.value
+    .sort((a, b) => {
+      return (
+        new Date(a.EstimatedTimeAtLocation) -
+        new Date(b.EstimatedTimeAtLocation)
+      );
+    })
+    .map((train) => train.AdvertisedTrainIdent)
+    .filter((train) => train !== undefined);
+
+  delayedTrainNumbers.value = trainNumbers;
+}
+
 const socket = io("http://localhost:8393/");
 
 onMounted(async () => {
-  // Define the function to fetch and process delayed trains
+  await fetchAndProcessDelayedTrains();
+  getDelayedTrainNumbers();
 
-  // Call the function immediately
-  fetchAndProcessDelayedTrains();
-
-  // Set up the interval to call the function every 100 seconds
-  window.setInterval(fetchAndProcessDelayedTrains, 100000);
+  // Call the function every 60 seconds
+  window.setInterval(fetchAndProcessDelayedTrains, 60000);
 
   // fetch codes
   try {
@@ -105,12 +135,14 @@ onMounted(async () => {
   <AuthModal v-if="showAuth" :hideLogin="hideLogin" />
   <div class="w-full h-full flex flex-row justify-between">
     <div class="border-2 w-105">
+      <Filter @update:ShowDelayed="updateShowDelayed" />
       <TripList
         :setTrain="setInspectTrain"
         :trains="delayedTrains"
         :toggle-details="displayTrue"
         :socket="socket"
         @update:canEdit="updateCanEditTrain"
+        @update:showPosition="updateShowPosition"
       />
     </div>
     <div class="border-2 w-full">
@@ -122,7 +154,13 @@ onMounted(async () => {
         :canEditTrain="canEditTrain.value"
         v-if="showDetails"
       />
-      <Map :socket="socket" v-else />
+      <Map
+        :delayedTrains="delayedTrainNumbers"
+        :onlyShowDelayed="ShowDelayed"
+        :socket="socket"
+        :showSpecificTrain="showPosition"
+        v-else
+      />
     </div>
   </div>
 </template>

@@ -3,10 +3,15 @@
 </template>
 
 <script setup>
-import { onBeforeUnmount, onMounted, ref } from "vue";
+import { onBeforeUnmount, onMounted, ref, watch } from "vue";
 import L from "leaflet";
 
-const props = defineProps(["socket"]);
+const props = defineProps([
+  "socket",
+  "onlyShowDelayed",
+  "delayedTrains",
+  "showSpecificTrain",
+]);
 
 onBeforeUnmount(() => {
   props.socket.off("getTrainPositions");
@@ -37,16 +42,89 @@ onMounted(() => {
 
   const markers = ref({});
 
+  watch(
+    () => props.showSpecificTrain.value,
+    (newVal) => {
+      for (const trainnumber in markers.value) {
+        if (newVal && props.showSpecificTrain.value === trainnumber) {
+          markers.value[trainnumber].setOpacity(1);
+          markers.value[trainnumber].getElement().style.pointerEvents = "auto";
+        } else {
+          markers.value[trainnumber].setOpacity(0);
+          markers.value[trainnumber].getElement().style.pointerEvents = "none";
+        }
+      }
+    }
+  );
+
+  watch(
+    () => props.onlyShowDelayed.value,
+    (newVal) => {
+      for (const trainnumber in markers.value) {
+        if (newVal && !props.delayedTrains.includes(trainnumber)) {
+          markers.value[trainnumber].setOpacity(0);
+          markers.value[trainnumber].getElement().style.pointerEvents = "none";
+        } else {
+          markers.value[trainnumber].setOpacity(1);
+          markers.value[trainnumber].getElement().style.pointerEvents = "auto";
+        }
+      }
+    }
+  );
+
   props.socket.on("getTrainPositions", (data) => {
-    if (markers.value.hasOwnProperty(data.trainnumber)) {
-      let marker = markers.value[data.trainnumber];
-      marker.setLatLng(data.position);
+    if (props.onlyShowDelayed) {
+      if (props.delayedTrains.includes(data.trainnumber)) {
+        if (markers.value.hasOwnProperty(data.trainnumber)) {
+          let marker = markers.value[data.trainnumber];
+          marker.setLatLng(data.position).setOpacity(1);
+          marker.getElement().style.pointerEvents = "auto";
+        } else {
+          markers.value[data.trainnumber] = L.marker(data.position, {
+            icon: customIcon,
+          })
+            .bindPopup(data.trainnumber)
+            .addTo(map);
+        }
+      } else {
+        if (markers.value.hasOwnProperty(data.trainnumber)) {
+          markers.value[data.trainnumber].setOpacity(0);
+          markers.value[data.trainnumber].getElement().style.pointerEvents =
+            "none";
+        }
+      }
+    } else if (props.showSpecificTrain.value != undefined) {
+      if (data.trainnumber === props.showSpecificTrain.value) {
+        if (markers.value.hasOwnProperty(data.trainnumber)) {
+          let marker = markers.value[data.trainnumber];
+          marker.setLatLng(data.position).setOpacity(1);
+          marker.getElement().style.pointerEvents = "auto";
+        } else {
+          markers.value[data.trainnumber] = L.marker(data.position, {
+            icon: customIcon,
+          })
+            .bindPopup(data.trainnumber)
+            .addTo(map);
+        }
+      } else {
+        if (markers.value.hasOwnProperty(data.trainnumber)) {
+          markers.value[data.trainnumber].setOpacity(0);
+          markers.value[data.trainnumber].getElement().style.pointerEvents =
+            "none";
+        }
+      }
     } else {
-      markers.value[data.trainnumber] = L.marker(data.position, {
-        icon: customIcon,
-      })
-        .bindPopup(data.trainnumber)
-        .addTo(map);
+      if (markers.value.hasOwnProperty(data.trainnumber)) {
+        let marker = markers.value[data.trainnumber];
+        marker.setLatLng(data.position).setOpacity(1);
+        marker.getElement().style.pointerEvents = "auto";
+      } else {
+        markers.value[data.trainnumber] = L.marker(data.position, {
+          icon: customIcon,
+        })
+          .bindPopup(data.trainnumber)
+          .addTo(map);
+      }
     }
   });
 });
