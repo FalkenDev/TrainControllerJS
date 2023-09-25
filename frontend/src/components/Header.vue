@@ -13,7 +13,15 @@ const logout = () => {
 
 <template>
   <div class="w-full flex bg-slate-900 justify-between items-center">
-    <h1 class="text-3xl p-2 text-white">TrainControllerJS</h1>
+    <h1 class="text-3xl p-2 text-white flex items-center">
+      <img
+        src="../../public/train.svg"
+        alt="TrainControllerJS Logo"
+        class="mr-2 h-8 w-auto"
+      />
+      <!-- Adjust height and width as needed -->
+      TrainControllerJS
+    </h1>
     <div v-if="auth.isAuthenticated.value">
       <button
         class="text-white py-2 px-5 hover:bg-slate-800 mr-2 rounded-full"

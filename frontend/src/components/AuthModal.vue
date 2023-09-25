@@ -64,9 +64,6 @@ const submitForm = async () => {
     class="fixed z-50 bg-opacity-60 bg-slate-700 w-screen h-screen flex flex-col"
   >
     <div class="w-1/3 bg-gray-50">
-      <button @click="hideLogin">
-        <v-icon class="text-3xl" name="io-close-outline" />
-      </button>
       <div
         class="h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8"
       >
