@@ -6,7 +6,7 @@
 
 <script>
 import { auth } from "../models/auth.js";
-import { ref, provide, reactive } from "vue";
+import { onMounted, provide, reactive, ref } from "vue";
 
 export default {
   setup() {
@@ -15,6 +15,23 @@ export default {
 
     const register = async (email, password) => {
       await auth.register(email, password);
+    };
+
+    const checkAuthentication = async () => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        try {
+          const userData = await auth.fetchUserData();
+          Object.assign(user, userData);
+          isAuthenticated.value = true;
+        } catch (error) {
+          console.error("Error validating token:", error.message);
+          isAuthenticated.value = false;
+          localStorage.removeItem("token");
+        }
+      } else {
+        isAuthenticated.value = false;
+      }
     };
 
     const login = async (email, password) => {
@@ -33,6 +50,8 @@ export default {
       isAuthenticated.value = false;
       Object.assign(user, {});
     };
+
+    onMounted(checkAuthentication);
 
     provide("auth", {
       isAuthenticated,
