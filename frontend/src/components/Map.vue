@@ -47,10 +47,6 @@ onMounted(() => {
     (newVal) => {
       for (const trainnumber in markers.value) {
         if (newVal && props.showSpecificTrain.value === trainnumber) {
-          console.log(
-            "props.showSpecificTrain.value",
-            props.showSpecificTrain.value === trainnumber
-          );
           markers.value[trainnumber].setOpacity(1);
           markers.value[trainnumber].getElement().style.pointerEvents = "auto";
         } else {
@@ -58,7 +54,6 @@ onMounted(() => {
           markers.value[trainnumber].getElement().style.pointerEvents = "none";
         }
       }
-      console.log("newVal: ", newVal);
     }
   );
 
