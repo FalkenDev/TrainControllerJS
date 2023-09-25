@@ -42,7 +42,7 @@ module.exports = function (io) {
             .reverse();
 
           const trainObject = {
-            trainnumber: changedPosition.Train.AdvertisedTrainNumber,
+            trainnumber: changedPosition.Train.OperationalTrainNumber,
             position: position,
             timestamp: changedPosition.TimeStamp,
             bearing: changedPosition.Bearing,
@@ -52,13 +52,13 @@ module.exports = function (io) {
 
           if (
             trainPositions.hasOwnProperty(
-              changedPosition.Train.AdvertisedTrainNumber
+              changedPosition.Train.OperationalTrainNumber
             )
           ) {
             socket.emit("getTrainPositions", trainObject);
           }
 
-          trainPositions[changedPosition.Train.AdvertisedTrainNumber] =
+          trainPositions[changedPosition.Train.OperationalTrainNumber] =
             trainObject;
         }
       } catch (e) {
