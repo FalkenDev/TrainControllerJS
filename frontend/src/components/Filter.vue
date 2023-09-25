@@ -22,13 +22,41 @@ let ShowDelayed = ref(false);
 <template>
   <div class="border-b border-gray-200 h-28 p-2">
     <h1 class="text-2xl font-semibold">Inställningar</h1>
-    <div class="pt-2">
-      <button
-        @click="toggleMap"
-        class="border border-gray-400 pr-2 pl-2 shadow-md rounded-md bg-blue-300 font-semibold"
+    <div class="pt2">
+      <h1 class="pb-2">Kartan</h1>
+      <label
+        class="flex items-center relative w-max cursor-pointer select-none"
       >
-        {{ ShowDelayedText }}
-      </button>
+        <input
+          @click="toggleMap"
+          type="checkbox"
+          class="appearance-none transition-colors cursor-pointer w-28 h-7 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 border border-slate-500 focus:ring-blue-500 bg-orange-500"
+        />
+        <span
+          class="absolute font-medium text-xs uppercase right-2.5 text-white"
+          v-if="!ShowDelayed"
+        >
+          Försenade
+        </span>
+        <span
+          class="absolute font-medium text-xs uppercase right-12 text-white"
+          v-if="ShowDelayed"
+        >
+          Alla
+        </span>
+        <span
+          class="w-7 h-7 right-21 absolute rounded-md transform transition-transform bg-slate-300 border border-slate-500"
+        />
+      </label>
     </div>
   </div>
 </template>
+<style scoped>
+input:checked {
+  background-color: rgb(59 130 246);
+}
+
+input:checked ~ span:last-child {
+  --tw-translate-x: 5.3rem; /* translate-x-7 */
+}
+</style>

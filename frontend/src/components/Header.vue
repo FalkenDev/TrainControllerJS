@@ -1,5 +1,5 @@
 <script setup>
-import { inject, ref } from "vue";
+import { inject } from "vue";
 const auth = inject("auth");
 defineProps({
   displayLogin: Function,
@@ -12,7 +12,7 @@ const logout = () => {
 </script>
 
 <template>
-  <div class="w-full flex bg-slate-900 justify-between items-center">
+  <div class="w-full flex bg-slate-900 justify-between items-center max-h-screen">
     <h1 class="text-3xl p-2 text-white flex items-center">
       <img
         src="../../public/train.svg"
