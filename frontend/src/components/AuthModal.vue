@@ -1,4 +1,3 @@
-<script src="../../../backend/v1/controllers/auth.js"></script>
 <script setup>
 import { inject, ref } from "vue";
 const auth = inject("auth");
