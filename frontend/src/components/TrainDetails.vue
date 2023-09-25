@@ -17,6 +17,8 @@ const ticketDialog = ref({});
 const bypassDialogSocket = ref(false);
 
 const canEditTrain = inject("canEditTrain");
+
+const auth = inject("auth");
 const selectedRef = ref("ANA002");
 const allTickets = ref([]);
 const setSelectedRef = (val) => {
@@ -51,7 +53,7 @@ const fetchTickets = async () => {
 const leaveTrainTicketRoom = () => {
   props.socket.emit(
     "ticketHandlingLeave",
-    props.trainData.OperationalTrainNumber
+    props.trainData.OperationalTrainNumber,
   );
 };
 
@@ -61,7 +63,7 @@ watch(selectedRef, fetchTickets, { deep: true });
 const createAndFetchTickets = async () => {
   await train_api.createTicket(
     props.trainData.OperationalTrainNumber,
-    selectedRef.value
+    selectedRef.value,
   );
   await fetchTickets();
 };
@@ -170,7 +172,7 @@ const filteredTickets = computed(() => {
               {{
                 calcDelay(
                   data.EstimatedTimeAtLocation,
-                  data.AdvertisedTimeAtLocation
+                  data.AdvertisedTimeAtLocation,
                 )
               }}
             </td>
@@ -181,135 +183,136 @@ const filteredTickets = computed(() => {
         </tbody>
       </table>
     </div>
-
-    <div class="border border-black p-8 mb-10 justify-center flex flex-col">
-      <h1 class="text-lg font-semibold mb-5">Lägg till ett nytt ärende</h1>
-      <div v-if="canEditTrain" class="justify-center flex flex-col">
-        <label for="select-code" class="text-sm">Orsakskod</label>
-        <select
-          name="select-code"
-          @change="setSelectedRef($event.target.value)"
-          class="p-2 rounded-lg bg-gray-200 text-xs hover:bg-gray-300 cursor-pointer transition"
-        >
-          <option v-for="code in codes" :key="code.Code" :value="code.Code">
-            {{ code.Code }} - {{ code.Level3Description }}
-          </option>
-        </select>
-        <button
-          @click="createAndFetchTickets"
-          class="py-1 px-2 rounded-lg my-3 hover:bg-blue-600 transition-colors bg-blue-500 text-white"
-        >
-          Lägg till ärenden
-        </button>
-      </div>
-      <div v-else class="border border-black p-2 mb-5">
-        <h1 class="text-lg font-semibold text-red-400 text-center">
-          Du kan tyvär inte hantera ärenden just nu för tåget
-          {{ props.trainData.OperationalTrainNumber }} !
-        </h1>
-        <p class="text-center">
-          Just nu är det en annan användare som hanterar ärenden för tåget
-          {{ props.trainData.OperationalTrainNumber }}. Vänligen försöker igen
-          om några minuter.
-        </p>
-      </div>
-    </div>
-
-    <div>
-      <div>
-        <h1 class="text-xl font-semibold pb-2">Tågets ärenden</h1>
-      </div>
-      <table
-        class="w-full text-sm text-left text-gray-500 dark:text-gray-400 mb-11"
-      >
-        <thead
-          class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
-        >
-          <tr class="text-white">
-            <th>Tåg Nr</th>
-            <th>Statuskod</th>
-            <th>Skapad</th>
-            <th>Åtgärder</th>
-          </tr>
-        </thead>
-        <tbody v-if="filteredTickets.length != 0">
-          <tr v-for="ticket in filteredTickets">
-            <td class="text-black">{{ ticket.trainNr }}</td>
-            <td class="text-red-400">{{ ticket.code }}</td>
-            <td class="text-green-600">
-              {{ new Date(ticket.createdAt).toLocaleString() }}
-            </td>
-            <td v-if="canEditTrain">
-              <button
-                class="text-red-400 font-bold mr-2"
-                @click="openDeleteDialog(true, ticket)"
-              >
-                Radera
-              </button>
-              <span class="pr-2">|</span>
-              <button
-                class="text-orange-400 font-bold mr-2"
-                @click="openEditDialog(true, ticket)"
-              >
-                Ändra
-              </button>
-            </td>
-          </tr>
-        </tbody>
-        <tbody v-else>
-          <p class="text-red-400 font-semibold text-base">
-            Det finns inga ärenden för detta tåget!
+    <div v-if="auth.isAuthenticated.value">
+      <div class="border border-black p-8 mb-10 justify-center flex flex-col">
+        <h1 class="text-lg font-semibold mb-5">Lägg till ett nytt ärende</h1>
+        <div v-if="canEditTrain" class="justify-center flex flex-col">
+          <label for="select-code" class="text-sm">Orsakskod</label>
+          <select
+            name="select-code"
+            @change="setSelectedRef($event.target.value)"
+            class="p-2 rounded-lg bg-gray-200 text-xs hover:bg-gray-300 cursor-pointer transition"
+          >
+            <option v-for="code in codes" :key="code.Code" :value="code.Code">
+              {{ code.Code }} - {{ code.Level3Description }}
+            </option>
+          </select>
+          <button
+            @click="createAndFetchTickets"
+            class="py-1 px-2 rounded-lg my-3 hover:bg-blue-600 transition-colors bg-blue-500 text-white"
+          >
+            Lägg till ärenden
+          </button>
+        </div>
+        <div v-else class="border border-black p-2 mb-5">
+          <h1 class="text-lg font-semibold text-red-400 text-center">
+            Du kan tyvär inte hantera ärenden just nu för tåget
+            {{ props.trainData.OperationalTrainNumber }} !
+          </h1>
+          <p class="text-center">
+            Just nu är det en annan användare som hanterar ärenden för tåget
+            {{ props.trainData.OperationalTrainNumber }}. Vänligen försöker igen
+            om några minuter.
           </p>
-        </tbody>
-      </table>
-    </div>
-    <div>
-      <div>
-        <h1 class="text-xl font-semibold pb-2">Alla befintliga ärenden</h1>
+        </div>
       </div>
-      <table
-        class="w-full text-sm text-left text-gray-500 dark:text-gray-400 mb-11"
-      >
-        <thead
-          class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
+
+      <div>
+        <div>
+          <h1 class="text-xl font-semibold pb-2">Tågets ärenden</h1>
+        </div>
+        <table
+          class="w-full text-sm text-left text-gray-500 dark:text-gray-400 mb-11"
         >
-          <tr class="text-white">
-            <th>Tåg Nr</th>
-            <th>Statuskod</th>
-            <th>Skapad</th>
-            <th>Åtgärder</th>
-          </tr>
-        </thead>
-        <tbody v-if="allTickets.length != 0">
-          <tr v-for="ticket in allTickets">
-            <td class="text-black">{{ ticket.trainNr }}</td>
-            <td class="text-red-400">{{ ticket.code }}</td>
-            <td class="text-green-600">
-              {{ new Date(ticket.createdAt).toLocaleString() }}
-            </td>
-            <td>
-              <button
-                class="text-red-400 font-bold mr-2"
-                @click="openDeleteDialog(true, ticket)"
-              >
-                Radera
-              </button>
-              <span class="pr-2">|</span>
-              <button
-                class="text-orange-400 font-bold mr-2"
-                @click="openEditDialog(true, ticket)"
-              >
-                Ändra
-              </button>
-            </td>
-          </tr>
-        </tbody>
-        <tbody v-else>
-          <p class="text-red-400 font-semibold text-base">
-            Det finns inga befintliga ärenden!
-          </p>
-        </tbody>
-      </table>
+          <thead
+            class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
+          >
+            <tr class="text-white">
+              <th>Tåg Nr</th>
+              <th>Statuskod</th>
+              <th>Skapad</th>
+              <th>Åtgärder</th>
+            </tr>
+          </thead>
+          <tbody v-if="filteredTickets.length != 0">
+            <tr v-for="ticket in filteredTickets">
+              <td class="text-black">{{ ticket.trainNr }}</td>
+              <td class="text-red-400">{{ ticket.code }}</td>
+              <td class="text-green-600">
+                {{ new Date(ticket.createdAt).toLocaleString() }}
+              </td>
+              <td v-if="canEditTrain">
+                <button
+                  class="text-red-400 font-bold mr-2"
+                  @click="openDeleteDialog(true, ticket)"
+                >
+                  <v-icon name="io-close-outline" />
+                </button>
+                <span class="pr-2">|</span>
+                <button
+                  class="text-orange-400 font-bold mr-2"
+                  @click="openEditDialog(true, ticket)"
+                >
+                  Ändra
+                </button>
+              </td>
+            </tr>
+          </tbody>
+          <tbody v-else>
+            <p class="text-red-400 font-semibold text-base">
+              Det finns inga ärenden för detta tåget!
+            </p>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <div>
+          <h1 class="text-xl font-semibold pb-2">Alla befintliga ärenden</h1>
+        </div>
+        <table
+          class="w-full text-sm text-left text-gray-500 dark:text-gray-400 mb-11"
+        >
+          <thead
+            class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
+          >
+            <tr class="text-white">
+              <th>Tåg Nr</th>
+              <th>Statuskod</th>
+              <th>Skapad</th>
+              <th>Åtgärder</th>
+            </tr>
+          </thead>
+          <tbody v-if="allTickets.length != 0">
+            <tr v-for="ticket in allTickets">
+              <td class="text-black">{{ ticket.trainNr }}</td>
+              <td class="text-red-400">{{ ticket.code }}</td>
+              <td class="text-green-600">
+                {{ new Date(ticket.createdAt).toLocaleString() }}
+              </td>
+              <td>
+                <button
+                  class="text-red-400 font-bold mr-2"
+                  @click="openDeleteDialog(true, ticket)"
+                >
+                  Radera
+                </button>
+                <span class="pr-2">|</span>
+                <button
+                  class="text-orange-400 font-bold mr-2"
+                  @click="openEditDialog(true, ticket)"
+                >
+                  Ändra
+                </button>
+              </td>
+            </tr>
+          </tbody>
+          <tbody v-else>
+            <p class="text-red-400 font-semibold text-base">
+              Det finns inga befintliga ärenden!
+            </p>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
   <DeleteDialog

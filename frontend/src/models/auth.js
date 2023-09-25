@@ -46,4 +46,32 @@ export const auth = {
       console.error("Registration Error:", error.message);
     }
   },
+
+  fetchUserData: async () => {
+    try {
+      const API_URL = "https://jsramverk-editor-kafa21.azurewebsites.net";
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        throw new Error("No token found");
+      }
+      const response = await fetch(`${API_URL}/v1/auth/user`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch user data");
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Error fetching user data:", error.message);
+      throw error;
+    }
+  },
 };

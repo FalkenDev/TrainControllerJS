@@ -9,12 +9,22 @@ const message = ref("");
 
 const isRegister = ref(false);
 
-defineProps({ hideLogin: Function });
+const { hideLogin } = defineProps({
+  hideLogin: Function,
+});
 const toggleRegisterMode = () => {
   email.value = "";
   password.value = "";
   message.value = "";
   isRegister.value = !isRegister.value;
+};
+
+const background = ref(null);
+
+const closeOnBackgroundClick = (event) => {
+  if (event.target === background.value) {
+    hideLogin();
+  }
 };
 
 const submitForm = async () => {
@@ -31,13 +41,14 @@ const submitForm = async () => {
       message.value = "Registration successful! Please log in.";
     } catch (error) {
       console.error("Registration Error:", error);
-      message.value = "Error: Registration failed"; // Set an appropriate error message for registration failure
+      message.value = "Error: Registration failed";
     }
   } else {
     // Handle login
     try {
       await auth.login(email.value, password.value);
       message.value = "Login successful!";
+      hideLogin();
     } catch (error) {
       console.error("Login Error:", error);
       message.value = "Error: Login failed";
@@ -48,12 +59,11 @@ const submitForm = async () => {
 
 <template>
   <div
-    class="absolute z-50 bg-opacity-60 bg-slate-700 w-screen h-screen flex flex-col"
+    @click="closeOnBackgroundClick"
+    ref="background"
+    class="fixed z-50 bg-opacity-60 bg-slate-700 w-screen h-screen flex flex-col"
   >
     <div class="w-1/3 bg-gray-50">
-      <button @click="hideLogin">
-        Close <v-icon name="io-close-outline" />
-      </button>
       <div
         class="h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8"
       >
