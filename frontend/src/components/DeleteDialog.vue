@@ -67,7 +67,7 @@ const confirm = async () => {
 
 const deleteTicket = async () => {
   try {
-    await train_api.deleteTicket(props.ticket._id);
+    await train_api.deleteTicket(props.ticket.id);
   } catch (error) {
     console.error("Could not delete the ticket:", error);
   }
