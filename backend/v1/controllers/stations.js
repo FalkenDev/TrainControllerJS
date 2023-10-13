@@ -34,7 +34,6 @@ const stations = {
       });
   },
   getAllStations: async function () {
-    console.log("test");
     const currentTime = new Date().getTime();
 
     if (
