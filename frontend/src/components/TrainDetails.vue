@@ -47,13 +47,13 @@ const openEditDialog = (val, ticket) => {
 
 const fetchTickets = async () => {
   const res = await train_api.fetchAllTickets();
-  allTickets.value = res.data;
+  allTickets.value = res;
 };
 
 const leaveTrainTicketRoom = () => {
   props.socket.emit(
     "ticketHandlingLeave",
-    props.trainData.OperationalTrainNumber,
+    props.trainData.OperationalTrainNumber
   );
 };
 
@@ -63,7 +63,7 @@ watch(selectedRef, fetchTickets, { deep: true });
 const createAndFetchTickets = async () => {
   await train_api.createTicket(
     props.trainData.OperationalTrainNumber,
-    selectedRef.value,
+    selectedRef.value
   );
   await fetchTickets();
 };
@@ -172,7 +172,7 @@ const filteredTickets = computed(() => {
               {{
                 calcDelay(
                   data.EstimatedTimeAtLocation,
-                  data.AdvertisedTimeAtLocation,
+                  data.AdvertisedTimeAtLocation
                 )
               }}
             </td>

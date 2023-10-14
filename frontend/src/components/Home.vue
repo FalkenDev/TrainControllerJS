@@ -63,7 +63,7 @@ async function fetchAndProcessDelayedTrains() {
     const currentTime = new Date();
     const trainMap = {};
 
-    for (const train of res.data) {
+    for (const train of res) {
       if (!trainMap[train.OperationalTrainNumber]) {
         trainMap[train.OperationalTrainNumber] = [];
       }
@@ -89,9 +89,9 @@ async function fetchAndProcessDelayedTrains() {
       });
 
       const mostRelevantTrain = trains[0];
-      mostRelevantTrain.history = trains;
-
-      displayedTrains.push(mostRelevantTrain);
+      const mostRelevantTrainExtend = { ...mostRelevantTrain };
+      mostRelevantTrainExtend.history = trains;
+      displayedTrains.push(mostRelevantTrainExtend);
     }
     delayedTrains.value = displayedTrains;
   } catch (error) {
@@ -125,7 +125,7 @@ onMounted(async () => {
   // fetch codes
   try {
     const res = await train_api.fetchCodes();
-    codes.value = res.data;
+    codes.value = res;
   } catch (error) {
     console.log("Error:", error);
   }

@@ -5,7 +5,6 @@ const path = require("path");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const cluster = require("cluster");
-const filter = require("content-filter");
 const { ApolloServer, gql } = require("apollo-server-express");
 const typeDefs = require("./v1/graphQL/typeDefs");
 const resolvers = require("./v1/graphQL/resolvers");
@@ -50,14 +49,12 @@ app.use(require("morgan")("combined"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
-app.use(filter());
-app.use("/v1", v1);
+//app.use("/v1", v1);
 database.connect;
 
 const httpServer = require("http").createServer(app);
 const io = require("socket.io")(httpServer, {
   cors: {
-    origin: allowedOrigins,
     methods: ["GET", "POST", "PUT", "DELETE"],
   },
 });
@@ -68,6 +65,11 @@ const apolloServer = new ApolloServer({
   typeDefs,
   resolvers,
   introspection: true,
+  context: ({ req }) => {
+    return {
+      headers: req.headers,
+    };
+  },
   playground: {
     settings: {
       "schema.polling.enable": false,

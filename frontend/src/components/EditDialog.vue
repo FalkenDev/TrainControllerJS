@@ -83,7 +83,7 @@ const confirm = async () => {
 
 const editTicket = async () => {
   try {
-    await train_api.editTicket(props.ticket._id, selectedRef.value);
+    await train_api.editTicket(props.ticket.id, selectedRef.value);
   } catch (error) {
     console.error("Could not edit the ticket:", error);
   }
