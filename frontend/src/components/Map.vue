@@ -41,7 +41,6 @@ onBeforeUnmount(() => {
 onMounted(() => {
   nextTick(() => {
     const map = L.map("map").setView([62.173276, 14.942265], 5);
-    map.invalidateSize();
 
     // Create a custom SVG string
     const svgString = `<svg viewBox="0 0 57 81" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -99,7 +98,7 @@ onMounted(() => {
               "auto";
           }
         }
-      }
+      },
     );
 
     watch(
@@ -136,7 +135,7 @@ onMounted(() => {
               "auto";
           }
         }
-      }
+      },
     );
 
     props.socket.on("getTrainPositions", (data) => {

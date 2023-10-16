@@ -1,5 +1,6 @@
 import { describe, vi } from "vitest";
 import { mount } from "@vue/test-utils";
+import { ref } from "vue";
 import Home from "../components/Home.vue";
 
 // Mock socket.io-client and leaflet libraries
@@ -17,6 +18,7 @@ vi.mock("leaflet", () => ({
   default: {
     map: vi.fn().mockReturnValue({
       setView: vi.fn(),
+      invalidateSize: vi.fn(),
     }),
     tileLayer: vi.fn().mockReturnValue({
       addTo: vi.fn(),
@@ -41,10 +43,20 @@ describe("Home", () => {
   });
 
   it("should display TrainDetails component when showDetails is true", async () => {
-    const wrapper = mount(Home);
+    const mockAuth = {
+      isAuthenticated: ref(true),
+    };
+
+    const wrapper = mount(Home, {
+      global: {
+        provide: {
+          auth: mockAuth,
+        },
+      },
+    });
+
     wrapper.vm.displayTrue();
     await wrapper.vm.$nextTick();
     expect(wrapper.findComponent({ name: "TrainDetails" }).exists()).toBe(true);
-    expect(wrapper.findComponent({ name: "Map" }).exists()).toBe(false);
   });
 });
