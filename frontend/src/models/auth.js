@@ -65,17 +65,19 @@ export const auth = {
 
     try {
       const token = localStorage.getItem("token");
+      console.log("jag är en token", token);
       if (!token) {
         throw new Error("No token found");
       }
 
       const { data } = await apolloClient.query({
         query: GET_USER_DATA_QUERY,
-        headers: {
-          Authorization: `Bearer ${token}`,
+        context: {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
       });
-
       return data.getUserData;
     } catch (error) {
       throw new Error(error.message || "Failed to fetch user data");
