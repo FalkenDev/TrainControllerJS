@@ -22,11 +22,11 @@ beforeAll(async () => {
 });
 
 describe("Tickets GraphQL", () => {
-  it("Test with return all tickets", async () => {
+  it("1) Test with return all tickets", async () => {
     TrainTicketModel.find = jest.fn();
     authController.checkAuthToken.mockResolvedValue(true);
     TrainTicketModel.find.mockResolvedValue([
-      { id: "1", trainNr: "TestGraphQL", code: "Test1" },
+      { id: "1", trainNr: "TestGraphQL1", code: "Test1" },
     ]);
 
     const GET_ALL_TICKETS = `
@@ -41,11 +41,11 @@ describe("Tickets GraphQL", () => {
 
     const response = await query({ query: GET_ALL_TICKETS });
     expect(response.data.getAllTickets).toEqual([
-      { id: "1", trainNr: "TestGraphQL", code: "Test1" },
+      { id: "1", trainNr: "TestGraphQL1", code: "Test1" },
     ]);
   });
 
-  it("Test with return specific train tickets by its trainNr", async () => {
+  it("2) Test with return specific train tickets by its trainNr", async () => {
     TrainTicketModel.find = jest.fn();
     const mockTicket = [
       { id: "22", trainNr: "TestGraphQL20", code: "Test2" },
@@ -81,7 +81,8 @@ describe("Tickets GraphQL", () => {
     expect(response.data.getSpecificTrainTickets).toEqual(mockTicket);
   });
 
-  it("Test with create a ticket", async () => {
+  it("3) Test with create a ticket", async () => {
+    TrainTicketModel.prototype.save = jest.fn();
     const CREATE_A_TICKET = `
       mutation {
         createTicket(TrainTicket: { trainNr: "TestGraphQL30", code: "Test3" }) {
@@ -93,7 +94,7 @@ describe("Tickets GraphQL", () => {
     `;
 
     authController.checkAuthToken.mockResolvedValue(true);
-    TrainTicketModel.prototype.save = jest.fn().mockResolvedValue({
+    TrainTicketModel.prototype.save.mockResolvedValue({
       id: 303,
       trainNr: "TestGraphQL30",
       code: "Test3",
@@ -107,11 +108,12 @@ describe("Tickets GraphQL", () => {
     });
   });
 
-  it("Test with edit a tickets", async () => {
-    TrainTicketModel.findByIdAndUpdate; = jest.fn();
+  it("4) Test with edit a tickets", async () => {
+    TrainTicketModel.findByIdAndUpdate = jest.fn();
+
     const EDIT_A_TICKET = `
     mutation {
-        editTicket(id: "22", TrainTicket: { trainNr: "TestGraphQL30", code: "Test3" }) {
+        editTicket(id: "4", TrainTicket: { trainNr: "TestGraphQL4", code: "Test4" }) {
             id
             trainNr
             code
@@ -121,38 +123,39 @@ describe("Tickets GraphQL", () => {
 
     authController.checkAuthToken.mockResolvedValue(true);
     TrainTicketModel.findByIdAndUpdate.mockResolvedValue({
-      id: "22",
+      id: "4",
       trainNr: "TestGraphQL404",
       code: "Test44",
     });
 
     const response = await mutate({ mutation: EDIT_A_TICKET });
     expect(response.data.editTicket).toEqual({
-      id: "22",
+      id: "4",
       trainNr: "TestGraphQL404",
       code: "Test44",
     });
   });
 
-  it("Test to delete a tickets", async () => {
+  it("5) Test to delete a tickets", async () => {
+    TrainTicketModel.findByIdAndDelete = jest.fn();
     const DELETE_A_TICKET = `
       mutation {
-        deleteTicket(id: "22")
+        deleteTicket(id: "5")
       }
     `;
 
     authController.checkAuthToken.mockResolvedValue(true);
-    TrainTicketModel.findByIdAndDelete = jest.fn().mockResolvedValue({
-      id: "22",
-      trainNr: "TestGraphQL404",
-      code: "Test44",
+    TrainTicketModel.findByIdAndDelete.mockResolvedValue({
+      id: "5",
+      trainNr: "TestGraphQL505",
+      code: "Test5",
     });
 
     const response = await mutate({ mutation: DELETE_A_TICKET });
     expect(response.data.deleteTicket).toEqual("Ticket successfully deleted!");
   });
 
-  it("Test auth (not authenticated) when handling tickets", async () => {
+  it("6) Test auth (not authenticated) when handling tickets", async () => {
     const GET_ALL_TICKETS = `
     query {
         getAllTickets {
@@ -171,7 +174,7 @@ describe("Tickets GraphQL", () => {
 });
 
 describe("Train Information", () => {
-  it("Test get delayed trains", async () => {
+  it("1) Test get delayed trains", async () => {
     const mockDelayedTrains = [
       {
         ActivityId: "1",
@@ -235,18 +238,91 @@ describe("Train Information", () => {
     expect(response.data.getDelayedTrains).toEqual(mockDelayedTrains);
   });
 
-  it("Test get train codes", async () => {
-    const mockTrainCodes = [];
+  it("2) Test get train codes", async () => {
+    const mockTrainCodes = [
+      { Code: "1", Level1Description: "Test1" },
+      { Code: "2", Level1Description: "Test2" },
+    ];
+
+    trainsController.getAllCodes.mockResolvedValue(mockTrainCodes);
+
+    const GET_ALL_CODES = `
+    query {
+        getAllCodes {
+            Code
+            Level1Description
+        }
+    }
+    `;
+
+    authController.checkAuthToken.mockResolvedValue(true);
+    const response = await query({ query: GET_ALL_CODES });
+
+    expect(response.data.getAllCodes).toEqual(mockTrainCodes);
   });
 });
 
 describe("Authentication", () => {
-  it("Test login (sucess)", async () => {});
-  it("Test login (failed)", async () => {});
-  it("Test register", async () => {});
-  it("Test get user data", async () => {});
+  it("Test login (sucess)", async () => {
+    const mockLoginResponse = {
+      token: "123456789",
+    };
+
+    authController.loginUserGraphQL.mockResolvedValue(mockLoginResponse);
+
+    const LOGIN = `
+    mutation {
+        loginUser(LoginUser: {email: "test@bmail.com", password: "123456"}) {
+            token
+        }
+    }
+    `;
+
+    const response = await query({ query: LOGIN });
+
+    expect(response.data.loginUser).toEqual(mockLoginResponse);
+  });
+
+  it("Test login (failed)", async () => {
+    const LOGIN = `
+    mutation {
+        loginUser(LoginUser: {email: "failed@failed.com", password: "123456"}) {
+            token
+        }
+    }
+    `;
+
+    authController.loginUserGraphQL.mockRejectedValue(
+      new Error("Login failed")
+    );
+
+    const response = await query({ query: LOGIN });
+
+    expect(response.data.loginUser).toBeNull();
+
+    expect(response.errors[0].message).toEqual("Login failed");
+  });
+  it("Test register", async () => {
+    const REGISTER = `
+    mutation {
+        registerUser(RegisterUser: {email: "failed@failed.com", password: "123456"}) {
+            message
+        }
+    }
+    `;
+
+    authController.registerUserGraphQL.mockResolvedValue({
+      message: "User registered successfully",
+    });
+
+    const response = await mutate({ mutation: REGISTER });
+
+    expect(response.data.registerUser.message).toBe(
+      "User registered successfully"
+    );
+  });
 });
 
-afterAll(async () => {
+afterEach(async () => {
   jest.clearAllMocks();
 });
