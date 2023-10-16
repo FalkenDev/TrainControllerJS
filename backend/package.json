@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "apollo-server-express": "^3.12.1",
+    "apollo-server-testing": "^2.25.3",
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.2",
     "content-filter": "^1.1.2",
