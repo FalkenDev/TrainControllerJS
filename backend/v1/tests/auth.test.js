@@ -73,14 +73,13 @@ describe("Auth Controller Tests", () => {
     const mockUser = {
       _id: "someUserId",
       email: "test@example.com",
-      password: "hashedPassword",
     };
 
     jwt.verify.mockImplementation((token, secret, callback) =>
       callback(null, mockDecoded),
     );
 
-    User.findById.mockResolvedValue(mockUser);
+    User.findById = jest.fn().mockResolvedValue(mockUser);
 
     await auth.getUserData(mockRes, mockReq);
 

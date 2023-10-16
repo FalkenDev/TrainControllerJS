@@ -36,20 +36,28 @@ const auth = {
     try {
       const token =
         req.headers.authorization && req.headers.authorization.split(" ")[1];
+
       if (!token) return res.status(401).send({ message: "No token provided" });
 
-      jwt.verify(token, "secret_word", async (err, decoded) => {
-        if (err)
-          return res
-            .status(401)
-            .send({ message: "Failed to authenticate token" });
-
-        const userId = decoded.userId;
-
-        const user = await User.findById(userId).select("-password");
-        if (!user) return res.status(404).send({ message: "User not found" });
-        res.send(user);
+      const decoded = await new Promise((resolve, reject) => {
+        jwt.verify(token, "secret_word", (err, decoded) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(decoded);
+          }
+        });
       });
+
+      const userId = decoded.userId;
+
+      const user = await User.findById(userId).catch((e) => {
+        return null;
+      });
+
+      if (!user) return res.status(404).send({ message: "User not found" });
+
+      res.send(user);
     } catch (error) {
       res.status(500).send(error);
     }
