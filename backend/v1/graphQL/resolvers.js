@@ -75,7 +75,7 @@ const resolvers = {
       }
     },
     registerUser: async (_parent, args, _context, _info) => {
-      await authController.registerUserGraphQL(args.RegisterUser);
+      return await authController.registerUserGraphQL(args.RegisterUser);
     },
     loginUser: async (_parent, args, _context, _info) => {
       try {
