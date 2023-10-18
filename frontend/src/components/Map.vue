@@ -3,7 +3,7 @@
 </template>
 
 <script setup>
-import { onBeforeUnmount, onMounted, ref, watch, nextTick } from "vue";
+import { onBeforeUnmount, inject, onMounted, ref, watch, nextTick } from "vue";
 import L from "leaflet";
 
 const props = defineProps([
@@ -12,6 +12,8 @@ const props = defineProps([
   "delayedTrains",
   "showSpecificTrain",
 ]);
+
+const selectDelay = inject("selected");
 
 const markerAdd = async (data, markers, customIcon, map) => {
   if (markers.value.hasOwnProperty(data.trainnumber)) {
@@ -24,10 +26,16 @@ const markerAdd = async (data, markers, customIcon, map) => {
     })
       .bindPopup(data.trainnumber)
       .on("click", (e) => {
-        console.log("Marker clicked:", e.target);
+        selectDelay.setSelectedDelay(e.target.getPopup().getContent());
       })
       .addTo(map);
   }
+
+  map.on("popupclose", (e) => {
+    if (e.popup.getContent() === data.trainnumber) {
+      selectDelay.setSelectedDelay(null);
+    }
+  });
 };
 
 const markerRemove = async (data, markers) => {
@@ -44,8 +52,6 @@ onBeforeUnmount(() => {
 onMounted(() => {
   nextTick(() => {
     const map = L.map("map").setView([62.173276, 14.942265], 5);
-
-    // Create a custom SVG string
     const svgString = `<svg viewBox="0 0 57 81" fill="none" xmlns="http://www.w3.org/2000/svg">
 <ellipse cx="28.5" cy="28.5" rx="22.5" ry="21.5" fill="white"/>
 <path d="M0.733887 28.9711C0.733887 10.4926 15.4075 0.86483 28.6721 0.860109L28.6808 0.860464L28.7367 0.863098C28.7868 0.865637 28.8624 0.869868 28.9618 0.876549C29.1605 0.889913 29.4542 0.913073 29.8293 0.952083C30.5797 1.03012 31.6549 1.1715 32.9464 1.42448C35.5316 1.9309 38.9717 2.88223 42.4061 4.65954C45.8391 6.43616 49.2558 9.03236 51.8148 12.8256C54.371 16.6148 56.0899 21.6257 56.0899 28.2661C56.0899 38.1729 50.3909 51.1335 44.0285 61.6686C40.8547 66.924 37.5336 71.5466 34.7106 74.8492C33.2981 76.5019 32.0194 77.8132 30.9537 78.7067C30.4205 79.1538 29.9512 79.4872 29.5538 79.7065C29.1468 79.9311 28.8608 80.0101 28.6819 80.0101C28.5046 80.0101 28.2175 79.93 27.8054 79.701C27.4037 79.4777 26.9283 79.1384 26.3874 78.6843C25.3064 77.7768 24.0062 76.4471 22.568 74.7766C19.6939 71.4384 16.3047 66.7819 13.063 61.5331C9.82161 56.2847 6.7351 50.4562 4.46047 44.7754C2.18279 39.0869 0.733887 33.5825 0.733887 28.9711ZM8.40889 29.2131C8.40889 40.2592 17.3627 49.2151 28.4099 49.2151C39.458 49.2151 48.4119 40.2602 48.4119 29.2131C48.4119 18.165 39.457 9.21011 28.4099 9.21011C17.3647 9.21011 8.40889 18.165 8.40889 29.2131Z" fill="#275DD0" stroke="#002C8B"/>
@@ -53,7 +59,6 @@ onMounted(() => {
 <path d="M34.0819 39.5191C34.3269 39.7251 34.9679 39.8931 35.5059 39.8911C36.0429 39.8891 36.1459 39.5911 35.7319 39.2281L33.5099 37.2841C33.0959 36.9221 32.3149 36.6231 31.7729 36.6211C31.2309 36.6191 31.0749 36.8721 31.4259 37.1841C31.7789 37.4961 31.6149 37.7511 31.0669 37.7511H25.7579C25.2089 37.7511 25.0459 37.4961 25.3989 37.1841C25.7509 36.8721 25.5939 36.6191 25.0519 36.6211C24.5099 36.6231 23.7279 36.9211 23.3149 37.2841L21.0929 39.2281C20.6789 39.5901 20.7809 39.8881 21.3189 39.8911C21.8569 39.8931 22.4979 39.7251 22.7429 39.5191C22.9869 39.3131 23.6379 39.1441 24.1879 39.1441H32.6369C33.1879 39.1441 33.8379 39.3131 34.0819 39.5191Z" fill="#275DD0"/>
 </svg>`;
 
-    // Create a custom icon
     const customIcon = L.divIcon({
       className: "custom-icon",
       iconSize: [30, 30],
@@ -101,7 +106,7 @@ onMounted(() => {
               "auto";
           }
         }
-      },
+      }
     );
 
     watch(
@@ -138,7 +143,7 @@ onMounted(() => {
               "auto";
           }
         }
-      },
+      }
     );
 
     props.socket.on("getTrainPositions", (data) => {

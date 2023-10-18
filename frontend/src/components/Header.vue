@@ -12,14 +12,15 @@ const logout = () => {
 </script>
 
 <template>
-  <div class="w-full flex bg-slate-900 justify-between items-center max-h-screen">
+  <div
+    class="w-full flex bg-slate-900 justify-between items-center max-h-screen"
+  >
     <h1 class="text-3xl p-2 text-white flex items-center">
       <img
         src="../../public/train.svg"
         alt="TrainControllerJS Logo"
         class="mr-2 h-8 w-auto"
       />
-      <!-- Adjust height and width as needed -->
       TrainControllerJS
     </h1>
     <div v-if="auth.isAuthenticated.value">
