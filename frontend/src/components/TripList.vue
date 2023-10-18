@@ -2,7 +2,8 @@
 const emit = defineEmits(["update:canEdit", "update:showPosition"]);
 
 import TrainCard from "./TrainCard.vue";
-import { onUnmounted, computed, ref } from "vue";
+import { onUnmounted, computed, ref, inject } from "vue";
+const selectDelay = inject("selected");
 
 const props = defineProps({
   setTrain: Function,
@@ -37,14 +38,18 @@ const showPosition = (trainNr) => {
   emit("update:showPosition", trainNr);
 };
 
-// Close the socket connection when the component is unmounted
 onUnmounted(() => {
   props.socket.close();
 });
 
-// Computed property for sorted trains
 const sortedTrains = computed(() => {
-  return props.trains.slice().sort((a, b) => {
+  const filteredTrains = props.trains.filter(
+    (train) =>
+      selectDelay.selectedDelay.value === null ||
+      selectDelay.selectedDelay.value === train.OperationalTrainNumber
+  );
+
+  return filteredTrains.slice().sort((a, b) => {
     return (
       new Date(a.EstimatedTimeAtLocation) - new Date(b.EstimatedTimeAtLocation)
     );
