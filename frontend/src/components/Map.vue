@@ -23,6 +23,9 @@ const markerAdd = async (data, markers, customIcon, map) => {
       icon: customIcon,
     })
       .bindPopup(data.trainnumber)
+      .on("click", (e) => {
+        console.log("Marker clicked:", e.target);
+      })
       .addTo(map);
   }
 };
