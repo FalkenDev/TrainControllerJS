@@ -119,7 +119,6 @@ const auth = {
   },
 
   checkAuthToken: async function (context = {}) {
-    console.log("auth");
     const token =
       context.headers &&
       context.headers.authorization &&
@@ -127,7 +126,6 @@ const auth = {
     if (!token) return false;
 
     try {
-      console.log(jwt.verify(token, "secret_word"));
       return jwt.verify(token, "secret_word");
     } catch (err) {
       return false;

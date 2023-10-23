@@ -19,11 +19,9 @@ export default {
 
     const checkAuthentication = async () => {
       const token = localStorage.getItem("token");
-      console.log(token);
       if (token) {
         try {
           const userData = await auth.fetchUserData();
-          console.log(userData);
           Object.assign(user, userData);
           isAuthenticated.value = true;
         } catch (error) {

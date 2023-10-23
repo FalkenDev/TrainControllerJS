@@ -10,8 +10,6 @@ module.exports = function (io) {
   const trainPositions = {};
 
   io.on("connection", async (socket) => {
-    console.log("User connected to fetch all Trains");
-
     const response = await fetch(
       "https://api.trafikinfo.trafikverket.se/v2/data.json",
       {

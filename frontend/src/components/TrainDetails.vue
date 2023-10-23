@@ -47,7 +47,7 @@ const openEditDialog = (val, ticket) => {
 
 const fetchTickets = async () => {
   const res = await train_api.fetchAllTickets();
-  allTickets.value = res;
+  allTickets.value = await res;
 };
 
 const leaveTrainTicketRoom = () => {
@@ -239,7 +239,7 @@ const filteredTickets = computed(() => {
               <td class="text-black">{{ ticket.trainNr }}</td>
               <td class="text-red-400">{{ ticket.code }}</td>
               <td class="text-green-600">
-                {{ new Date(ticket.createdAt).toLocaleString() }}
+                {{ new Date(Number(ticket.createdAt)).toLocaleString() }}
               </td>
               <td v-if="canEditTrain">
                 <button
@@ -287,14 +287,14 @@ const filteredTickets = computed(() => {
               <td class="text-black">{{ ticket.trainNr }}</td>
               <td class="text-red-400">{{ ticket.code }}</td>
               <td class="text-green-600">
-                {{ new Date(ticket.createdAt).toLocaleString() }}
+                {{ new Date(Number(ticket.createdAt)).toLocaleString() }}
               </td>
               <td>
                 <button
                   class="text-red-400 font-bold mr-2"
                   @click="openDeleteDialog(true, ticket)"
                 >
-                  Radera
+                  <v-icon name="io-close-outline" />
                 </button>
                 <span class="pr-2">|</span>
                 <button

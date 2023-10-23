@@ -7,7 +7,6 @@ defineProps({
 
 const logout = () => {
   auth.logout();
-  console.log("Logged out");
 };
 </script>
 
