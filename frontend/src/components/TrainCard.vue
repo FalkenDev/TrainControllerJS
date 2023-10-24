@@ -1,4 +1,6 @@
-<script>
+<script setup>
+import { ref, defineEmits, provide, computed } from "vue";
+
 import ÖTÅG from "../assets/trainLogos/otog.png";
 import SJ from "../assets/trainLogos/sj.png";
 import SKANE from "../assets/trainLogos/skanetrafiken.png";
@@ -13,74 +15,77 @@ import mtrx from "../assets/trainLogos/mtrx.png";
 import nrail from "../assets/trainLogos/NRail.png";
 import vast from "../assets/trainLogos/vast.png";
 
-export default {
-  props: {
-    trainData: Object,
-  },
+import marker from "../assets/marker.svg";
 
-  data() {
-    return {
-      logos: {
-        "Ö-TÅG": { src: ÖTÅG },
-        SJ: { src: SJ },
-        SKANE: { src: SKANE },
-        SLL: { src: SLL },
-        TÅGAB: { src: togab },
-        VY: { src: VY },
-        MÄLAB: { src: malartag },
-        BLSRAIL: { src: blsrail },
-        JLT: { src: jlt },
-        MTAB: { src: mtab },
-        MTRN: { src: mtrx },
-        NRAIL: { src: nrail },
-        VASTTRAF: { src: vast },
-      },
-    };
-  },
+const emit = defineEmits(["update:showPosition"]);
 
-  computed: {
-    currentLogo() {
-      return (
-        this.logos[this.trainData.TrainOwner] || {
-          src: "",
-        }
-      );
-    },
-  },
+const props = defineProps({
+  trainData: Object,
+  currentTrain: Object,
+});
 
-  methods: {
-    calcDelay(estimated, advertised) {
-      const estTime = new Date(estimated);
-      const advTime = new Date(advertised);
-      return Math.ceil((estTime - advTime) / 60000);
-    },
-
-    formatTimes(time) {
-      const formattedTime = new Date(time);
-      const hours = formattedTime.getHours().toString().padStart(2, "0");
-      const minutes = formattedTime.getMinutes().toString().padStart(2, "0");
-      return `${hours}:${minutes}`;
-    },
-
-    getTags() {
-      return [
-        {
-          title: "Canceled",
-          value: this.trainData.Canceled
-            ? "Canceled"
-            : `${this.calcDelay(
-                this.trainData.EstimatedTimeAtLocation,
-                this.trainData.AdvertisedTimeAtLocation
-              )} min`,
-        },
-        {
-          title: "Owner",
-          value: this.trainData.TrainOwner,
-        },
-      ];
-    },
-  },
+const logos = {
+  "Ö-TÅG": { src: ÖTÅG },
+  SJ: { src: SJ },
+  SKANE: { src: SKANE },
+  SLL: { src: SLL },
+  TÅGAB: { src: togab },
+  VY: { src: VY },
+  MÄLAB: { src: malartag },
+  BLSRAIL: { src: blsrail },
+  JLT: { src: jlt },
+  MTAB: { src: mtab },
+  MTRN: { src: mtrx },
+  NRAIL: { src: nrail },
+  VASTTRAF: { src: vast },
 };
+
+const markerImg = marker;
+
+const currentLogo = computed(
+  () => logos[props.trainData.TrainOwner] || { src: "" },
+);
+
+const calcDelay = (estimated, advertised) => {
+  const estTime = new Date(estimated);
+  const advTime = new Date(advertised);
+  return Math.ceil((estTime - advTime) / 60000);
+};
+
+const formatTimes = (time) => {
+  const formattedTime = new Date(time);
+  const hours = formattedTime.getHours().toString().padStart(2, "0");
+  const minutes = formattedTime.getMinutes().toString().padStart(2, "0");
+  return `${hours}:${minutes}`;
+};
+
+let showPosition = ref("");
+
+const togglePosition = (val) => {
+  if (showPosition.value === val) {
+    showPosition.value = undefined;
+  } else {
+    showPosition.value = val;
+  }
+
+  emit("update:showPosition", showPosition);
+};
+
+const getTags = () => [
+  {
+    title: "Canceled",
+    value: props.trainData.Canceled
+      ? "Canceled"
+      : `${calcDelay(
+          props.trainData.EstimatedTimeAtLocation,
+          props.trainData.AdvertisedTimeAtLocation,
+        )} min`,
+  },
+  {
+    title: "Owner",
+    value: props.trainData.TrainOwner,
+  },
+];
 </script>
 
 <template>
@@ -125,15 +130,28 @@ export default {
         </div>
       </div>
     </div>
-    <div class="w-full border-t self-center mt-2 pt-2 text-xs">
-      <p>
+    <div
+      class="w-full border-t self-center mt-2 pt-2 text-xs flex items-center justify-between"
+    >
+      <div>
         <span
-          class="p-1 border border-red-500 rounded-lg mr-1 text-red-500"
+          class="p-1 border border-red-500 rounded-lg mr-1 text-red-500 pr-2 pl-2"
           v-for="(item, index) in getTags()"
           :key="index"
           >{{ item.value }}</span
         >
-      </p>
+      </div>
+      <button
+        @click.stop="togglePosition(trainData.OperationalTrainNumber)"
+        :class="{
+          'text-red-600 font-bold':
+            currentTrain.value === trainData.OperationalTrainNumber,
+          'border-gray-200 text-black': currentTrain.value === undefined,
+        }"
+        class="py-1 pl-2 pr-3 text-black flex items-center border-l"
+      >
+        <v-icon name="co-location-pin" />Visa Position
+      </button>
     </div>
   </div>
 </template>

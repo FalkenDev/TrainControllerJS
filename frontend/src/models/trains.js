@@ -1,91 +1,238 @@
+import gql from "graphql-tag";
+import { apolloClient } from "../main.js";
+const token = localStorage.getItem("token");
+const authHeader = token ? `Bearer ${token}` : "";
+
 export const train_api = {
   fetchDelayedTrains: async () => {
-    const API_URL = "https://jsramverk-editor-kafa21.azurewebsites.net";
-    const response = await fetch(`${API_URL}/v1/trains/delayed`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    if (response.ok) {
-      return await response.json();
-    } else {
-      throw new Error("Failed to fetch delayed trains");
+    const GET_DELAYED_TRAINS = gql`
+      query GetDelayedTrains {
+        getDelayedTrains {
+          ActivityId
+          ActivityType
+          AdvertisedTimeAtLocation
+          AdvertisedTrainIdent
+          Canceled
+          EstimatedTimeAtLocation
+          LocationSignature
+          OperationalTrainNumber
+          FromLocation {
+            LocationName
+            Priority
+            Order
+          }
+          ToLocation {
+            LocationName
+            Priority
+            Order
+          }
+          TimeAtLocation
+          TrainOwner
+        }
+      }
+    `;
+
+    try {
+      const { data } = await apolloClient.query({
+        query: GET_DELAYED_TRAINS,
+        fetchPolicy: "network-only",
+        context: {
+          headers: {
+            Authorization: authHeader,
+          },
+        },
+      });
+
+      return data.getDelayedTrains;
+    } catch (error) {
+      throw new Error(error);
     }
   },
 
   fetchCodes: async () => {
-    const API_URL = "https://jsramverk-editor-kafa21.azurewebsites.net";
-    const response = await fetch(`${API_URL}/v1/trains/codes`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    if (response.ok) {
-      return await response.json();
-    } else {
-      throw new Error("Failed to fetch codes");
+    const GET_ALL_CODES = gql`
+      query GetAllCodes {
+        getAllCodes {
+          Code
+          Level1Description
+          Level2Description
+          Level3Description
+        }
+      }
+    `;
+
+    try {
+      const { data } = await apolloClient.query({
+        query: GET_ALL_CODES,
+        fetchPolicy: "network-only",
+        context: {
+          headers: {
+            Authorization: authHeader,
+          },
+        },
+      });
+
+      return data.getAllCodes;
+    } catch (error) {
+      throw new Error(error);
     }
   },
 
   fetchAllTickets: async () => {
-    const API_URL = "https://jsramverk-editor-kafa21.azurewebsites.net";
-    const response = await fetch(`${API_URL}/v1/trains/tickets/`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    if (response.ok) {
-      return await response.json();
-    } else {
-      throw new Error("Failed to fetch tickets");
+    const GET_ALL_TICKETS = gql`
+      query GetAllTickets {
+        getAllTickets {
+          id
+          trainNr
+          code
+          createdAt
+        }
+      }
+    `;
+
+    try {
+      const { data } = await apolloClient.query({
+        query: GET_ALL_TICKETS,
+        fetchPolicy: "network-only",
+        context: {
+          headers: {
+            Authorization: authHeader,
+          },
+        },
+      });
+
+      return data.getAllTickets;
+    } catch (error) {
+      throw new Error(error);
     }
   },
 
   fetchSpecificTickets: async (trainNr) => {
-    const API_URL = "https://jsramverk-editor-kafa21.azurewebsites.net";
-    const response = await fetch(`${API_URL}/v1/trains/tickets/${trainNr}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    if (response.ok) {
-      return await response.json();
-    } else {
-      throw new Error("Failed to fetch tickets");
+    const GET_SPECIFIC_TICKETS = gql`
+      query GetSpecificTrainTickets($trainNr: String!) {
+        getSpecificTrainTickets(trainNr: $trainNr) {
+          id
+          trainNr
+          code
+        }
+      }
+    `;
+
+    try {
+      const { data } = await apolloClient.query({
+        query: GET_SPECIFIC_TICKETS,
+        fetchPolicy: "network-only",
+        context: {
+          headers: {
+            Authorization: authHeader,
+          },
+        },
+        variables: { trainNr: trainNr },
+      });
+
+      return data.getSpecificTrainTickets;
+    } catch (error) {
+      throw new Error(error);
     }
   },
 
   createTicket: async (trainNr, code) => {
-    const API_URL = "https://jsramverk-editor-kafa21.azurewebsites.net";
-    const response = await fetch(`${API_URL}/v1/trains/tickets/${trainNr}`, {
-      method: "POST",
-      body: JSON.stringify({
-        code: code,
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    if (response.ok) {
-      return await response.json();
-    } else {
-      throw new Error("Failed to create tickets");
+    const POST_CREATE_TICKET = gql`
+      mutation CreateTicket($trainTicketInput: TrainTicketInput!) {
+        createTicket(TrainTicket: $trainTicketInput) {
+          id
+          trainNr
+          code
+        }
+      }
+    `;
+
+    try {
+      const { data } = await apolloClient.mutate({
+        mutation: POST_CREATE_TICKET,
+        fetchPolicy: "network-only",
+        context: {
+          headers: {
+            Authorization: authHeader,
+          },
+        },
+        variables: {
+          trainTicketInput: {
+            trainNr: trainNr,
+            code: code,
+          },
+        },
+      });
+
+      return data.createTicket;
+    } catch (error) {
+      throw new Error(error);
     }
   },
 
   deleteTicket: async (ticketId) => {
-    const API_URL = "https://jsramverk-editor-kafa21.azurewebsites.net";
-    const response = await fetch(`${API_URL}/v1/trains/tickets/${ticketId}`, {
-      method: "DELETE",
-    });
-    if (response.ok) {
-      return await response.json();
-    } else {
-      throw new Error("Failed to delete ticket");
+    const DELETE_TICKET_MUTATION = gql`
+      mutation DeleteTicket($id: ID!) {
+        deleteTicket(id: $id)
+      }
+    `;
+
+    try {
+      const { data } = await apolloClient.mutate({
+        mutation: DELETE_TICKET_MUTATION,
+        fetchPolicy: "network-only",
+        context: {
+          headers: {
+            Authorization: authHeader,
+          },
+        },
+        variables: { id: ticketId },
+      });
+
+      if (data && data.deleteTicket === "Ticket successfully deleted!") {
+        return { message: "Ticket successfully deleted!" };
+      } else {
+        throw new Error("Failed to delete ticket");
+      }
+    } catch (error) {
+      throw new Error(error);
+    }
+  },
+  editTicket: async (ticketId, code) => {
+    const EDIT_TICKET_MUTATION = gql`
+      mutation EditTicket($id: ID!, $TrainTicket: TrainTicketInput!) {
+        editTicket(id: $id, TrainTicket: $TrainTicket) {
+          id
+          trainNr
+          code
+        }
+      }
+    `;
+
+    try {
+      const { data } = await apolloClient.mutate({
+        mutation: EDIT_TICKET_MUTATION,
+        fetchPolicy: "network-only",
+        context: {
+          headers: {
+            Authorization: authHeader,
+          },
+        },
+        variables: {
+          id: ticketId,
+          TrainTicket: {
+            code: code,
+          },
+        },
+      });
+
+      if (data && data.editTicket) {
+        return data.editTicket;
+      } else {
+        throw new Error("Failed to edit ticket");
+      }
+    } catch (error) {
+      throw new Error(error);
     }
   },
 };

@@ -27,14 +27,12 @@ const stations = {
         return response.json();
       })
       .then(function (result) {
-        console.log(result.RESPONSE.RESULT[0]);
         return res.json({
           data: result.RESPONSE.RESULT[0],
         });
       });
   },
   getAllStations: async function () {
-    console.log("test");
     const currentTime = new Date().getTime();
 
     if (
