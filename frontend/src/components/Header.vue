@@ -7,12 +7,13 @@ defineProps({
 
 const logout = () => {
   auth.logout();
-  console.log("Logged out");
 };
 </script>
 
 <template>
-  <div class="w-full flex bg-slate-900 justify-between items-center max-h-screen">
+  <div
+    class="w-full flex bg-slate-900 justify-between items-center max-h-screen"
+  >
     <h1 class="text-3xl p-2 text-white flex items-center">
       <img
         src="../../public/train.svg"

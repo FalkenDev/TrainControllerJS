@@ -27,7 +27,6 @@ const stations = {
         return response.json();
       })
       .then(function (result) {
-        console.log(result.RESPONSE.RESULT[0]);
         return res.json({
           data: result.RESPONSE.RESULT[0],
         });

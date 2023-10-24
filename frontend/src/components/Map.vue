@@ -98,7 +98,7 @@ onMounted(() => {
               "auto";
           }
         }
-      },
+      }
     );
 
     watch(
@@ -135,7 +135,7 @@ onMounted(() => {
               "auto";
           }
         }
-      },
+      }
     );
 
     props.socket.on("getTrainPositions", (data) => {
