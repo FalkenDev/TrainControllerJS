@@ -14,6 +14,7 @@ export const auth = {
     try {
       const { data } = await apolloClient.mutate({
         mutation: LOGIN_MUTATION,
+        fetchPolicy: "network-only",
         variables: {
           LoginUser: { email, password },
         },
@@ -42,6 +43,7 @@ export const auth = {
     try {
       const { data } = await apolloClient.mutate({
         mutation: REGISTER_MUTATION,
+        fetchPolicy: "network-only",
         variables: {
           RegisterUser: { email, password },
         },
@@ -65,13 +67,13 @@ export const auth = {
 
     try {
       const token = localStorage.getItem("token");
-      console.log("jag är en token", token);
       if (!token) {
         throw new Error("No token found");
       }
 
       const { data } = await apolloClient.query({
         query: GET_USER_DATA_QUERY,
+        fetchPolicy: "network-only",
         context: {
           headers: {
             Authorization: `Bearer ${token}`,

@@ -35,6 +35,7 @@ export const train_api = {
     try {
       const { data } = await apolloClient.query({
         query: GET_DELAYED_TRAINS,
+        fetchPolicy: "network-only",
         context: {
           headers: {
             Authorization: authHeader,
@@ -63,6 +64,7 @@ export const train_api = {
     try {
       const { data } = await apolloClient.query({
         query: GET_ALL_CODES,
+        fetchPolicy: "network-only",
         context: {
           headers: {
             Authorization: authHeader,
@@ -83,6 +85,7 @@ export const train_api = {
           id
           trainNr
           code
+          createdAt
         }
       }
     `;
@@ -90,6 +93,7 @@ export const train_api = {
     try {
       const { data } = await apolloClient.query({
         query: GET_ALL_TICKETS,
+        fetchPolicy: "network-only",
         context: {
           headers: {
             Authorization: authHeader,
@@ -117,6 +121,7 @@ export const train_api = {
     try {
       const { data } = await apolloClient.query({
         query: GET_SPECIFIC_TICKETS,
+        fetchPolicy: "network-only",
         context: {
           headers: {
             Authorization: authHeader,
@@ -145,6 +150,7 @@ export const train_api = {
     try {
       const { data } = await apolloClient.mutate({
         mutation: POST_CREATE_TICKET,
+        fetchPolicy: "network-only",
         context: {
           headers: {
             Authorization: authHeader,
@@ -165,7 +171,6 @@ export const train_api = {
   },
 
   deleteTicket: async (ticketId) => {
-    console.log(ticketId);
     const DELETE_TICKET_MUTATION = gql`
       mutation DeleteTicket($id: ID!) {
         deleteTicket(id: $id)
@@ -175,6 +180,7 @@ export const train_api = {
     try {
       const { data } = await apolloClient.mutate({
         mutation: DELETE_TICKET_MUTATION,
+        fetchPolicy: "network-only",
         context: {
           headers: {
             Authorization: authHeader,
@@ -206,6 +212,7 @@ export const train_api = {
     try {
       const { data } = await apolloClient.mutate({
         mutation: EDIT_TICKET_MUTATION,
+        fetchPolicy: "network-only",
         context: {
           headers: {
             Authorization: authHeader,
