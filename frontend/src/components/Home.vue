@@ -59,6 +59,7 @@ const updateShowDelayed = (val) => {
 async function fetchAndProcessDelayedTrains() {
   try {
     const res = await train_api.fetchDelayedTrains();
+    console.log(res);
 
     const currentTime = new Date();
     const trainMap = {};
@@ -91,6 +92,7 @@ async function fetchAndProcessDelayedTrains() {
       const mostRelevantTrain = trains[0];
       const mostRelevantTrainExtend = { ...mostRelevantTrain };
       mostRelevantTrainExtend.history = trains;
+
       displayedTrains.push(mostRelevantTrainExtend);
     }
     delayedTrains.value = displayedTrains;
@@ -117,6 +119,7 @@ const socket = io("https://jsramverk-editor-kafa21.azurewebsites.net/");
 
 onMounted(async () => {
   await fetchAndProcessDelayedTrains();
+  console.log("Fetched delayed trains:", delayedTrains.value);
   getDelayedTrainNumbers();
 
   // Call the function every 60 seconds
