@@ -5,6 +5,8 @@ const typeDefs = gql`
     id: ID
     trainNr: String
     code: String
+    createdAt: String
+    updatedAt: String
   }
 
   type Codes {
