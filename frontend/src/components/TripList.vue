@@ -11,7 +11,6 @@ const props = defineProps({
   toggleDetails: Function,
   socket: Object,
 });
-
 const newTrainNr = ref({});
 
 let beforeTrain = "";
@@ -46,7 +45,7 @@ const sortedTrains = computed(() => {
   const filteredTrains = props.trains.filter(
     (train) =>
       selectDelay.selectedDelay.value === null ||
-      selectDelay.selectedDelay.value === train.OperationalTrainNumber
+      selectDelay.selectedDelay.value === train.OperationalTrainNumber,
   );
 
   return filteredTrains.slice().sort((a, b) => {
