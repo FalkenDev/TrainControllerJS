@@ -11,6 +11,7 @@ const props = defineProps({
   toggleDetails: Function,
   socket: Object,
 });
+
 const newTrainNr = ref({});
 
 let beforeTrain = "";
