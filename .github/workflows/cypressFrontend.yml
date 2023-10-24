@@ -1,0 +1,25 @@
+name: Cypress test
+on:
+  push:
+    branches: ["main", "development"]
+  pull_request:
+    branches: ["main", "development"]
+
+jobs:
+  cypress-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.3.4
+
+      - name: Install Dependencies
+        working-directory: frontend
+        run: npm install
+
+      - name: Start Server
+        working-directory: frontend
+        run: npm run dev & sleep 10
+
+      - name: Run Cypress Tests
+        working-directory: frontend
+        run: npx cypress run --config-file=cypress.config.js
